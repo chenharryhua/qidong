@@ -1,13 +1,15 @@
  scalaVersion := "2.12.2"
  name := "qidong"
- val scalazVersion = "7.3.0-M12"
+ //val scalazVersion = "7.3.0-M12"
+ val scalazVersion = "7.2.12"
 
 //scala libs
 libraryDependencies ++= Seq(
   "org.scalaz"            %% "scalaz-core"       % scalazVersion,
   "org.scalaz"            %% "scalaz-concurrent" % scalazVersion,
   "org.scalaz"            %% "scalaz-effect"     % scalazVersion,
-  "io.monix" 		  %% "monix"             % "2.3.0")
+  "com.chuusai"           %% "shapeless"         % "2.3.2",
+  "io.monix" 		      %% "monix"             % "2.3.0")
 
 //java libs
 libraryDependencies += "joda-time" % "joda-time" % "2.9.9"
