@@ -1,0 +1,158 @@
+[0m[[0mdebug[0m] [0m[naha] [0m
+[0m[[0mdebug[0m] [0m[naha] Initial source changes: [0m
+[0m[[0mdebug[0m] [0m[naha] 	removed:Set()[0m
+[0m[[0mdebug[0m] [0m[naha] 	added: Set(/home/harry/code/github/qidong/src/main/scala/qidong/pipeline/Evalable.scala, /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/EvaluationModule.scala, /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/MMs.scala, /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/ops.scala, /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/MMsIdentityModule.scala, /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/CompatibleCheckModule.scala, /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/CompositionModule.scala, /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/MState.scala, /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/CallGraphModule.scala, /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/MBuilder.scala)[0m
+[0m[[0mdebug[0m] [0m[naha] 	modified: Set()[0m
+[0m[[0mdebug[0m] [0m[naha] Invalidated products: Set()[0m
+[0m[[0mdebug[0m] [0m[naha] External API changes: API Changes: Set()[0m
+[0m[[0mdebug[0m] [0m[naha] Modified binary dependencies: Set()[0m
+[0m[[0mdebug[0m] [0m[naha] Initial directly invalidated sources: Set(/home/harry/code/github/qidong/src/main/scala/qidong/pipeline/Evalable.scala, /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/EvaluationModule.scala, /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/MMs.scala, /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/ops.scala, /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/MMsIdentityModule.scala, /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/CompatibleCheckModule.scala, /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/CompositionModule.scala, /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/MState.scala, /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/CallGraphModule.scala, /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/MBuilder.scala)[0m
+[0m[[0mdebug[0m] [0m[naha] [0m
+[0m[[0mdebug[0m] [0m[naha] Sources indirectly invalidated by:[0m
+[0m[[0mdebug[0m] [0m[naha] 	product: Set()[0m
+[0m[[0mdebug[0m] [0m[naha] 	binary dep: Set()[0m
+[0m[[0mdebug[0m] [0m[naha] 	external source: Set()[0m
+[0m[[0mdebug[0m] [0mAll initially invalidated sources: Set(/home/harry/code/github/qidong/src/main/scala/qidong/pipeline/Evalable.scala, /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/EvaluationModule.scala, /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/MMs.scala, /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/ops.scala, /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/MMsIdentityModule.scala, /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/CompatibleCheckModule.scala, /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/CompositionModule.scala, /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/MState.scala, /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/CallGraphModule.scala, /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/MBuilder.scala)[0m
+[0m[[0mdebug[0m] [0m[naha] Initial set of included nodes: Set(/home/harry/code/github/qidong/src/main/scala/qidong/pipeline/Evalable.scala, /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/EvaluationModule.scala, /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/MMs.scala, /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/ops.scala, /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/MMsIdentityModule.scala, /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/CompatibleCheckModule.scala, /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/CompositionModule.scala, /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/MState.scala, /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/CallGraphModule.scala, /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/MBuilder.scala)[0m
+[0m[[0mdebug[0m] [0m[naha] Recompiling all 10 sources: invalidated sources (10) exceeded 50.0% of all sources[0m
+[0m[[0minfo[0m] [0mCompiling 10 Scala sources to /home/harry/code/github/qidong/target/scala-2.12/classes...[0m
+[0m[[0mdebug[0m] [0mGetting org.scala-sbt:compiler-interface:0.13.13:component from component compiler for Scala 2.12.2[0m
+[0m[[0mdebug[0m] [0mGetting org.scala-sbt:compiler-interface:0.13.13:component from component compiler for Scala 2.12.2[0m
+[0m[[0mdebug[0m] [0mRunning cached compiler 633d12e8, interfacing (CompilerInterface) with Scala compiler version 2.12.2[0m
+[0m[[0mdebug[0m] [0mCalling Scala compiler with arguments  (CompilerInterface):[0m
+[0m[[0mdebug[0m] [0m	-Ypartial-unification[0m
+[0m[[0mdebug[0m] [0m	-target:jvm-1.8[0m
+[0m[[0mdebug[0m] [0m	-deprecation[0m
+[0m[[0mdebug[0m] [0m	-encoding[0m
+[0m[[0mdebug[0m] [0m	UTF-8[0m
+[0m[[0mdebug[0m] [0m	-feature[0m
+[0m[[0mdebug[0m] [0m	-language:existentials[0m
+[0m[[0mdebug[0m] [0m	-language:higherKinds[0m
+[0m[[0mdebug[0m] [0m	-language:implicitConversions[0m
+[0m[[0mdebug[0m] [0m	-Xplugin:/home/harry/.coursier/cache/v1/https/repo1.maven.org/maven2/org/spire-math/kind-projector_2.12/0.9.3/kind-projector_2.12-0.9.3.jar[0m
+[0m[[0mdebug[0m] [0m	-bootclasspath[0m
+[0m[[0mdebug[0m] [0m	/usr/lib/jvm/java-8-oracle/jre/lib/resources.jar:/usr/lib/jvm/java-8-oracle/jre/lib/rt.jar:/usr/lib/jvm/java-8-oracle/jre/lib/sunrsasign.jar:/usr/lib/jvm/java-8-oracle/jre/lib/jsse.jar:/usr/lib/jvm/java-8-oracle/jre/lib/jce.jar:/usr/lib/jvm/java-8-oracle/jre/lib/charsets.jar:/usr/lib/jvm/java-8-oracle/jre/lib/jfr.jar:/usr/lib/jvm/java-8-oracle/jre/classes:/home/harry/.coursier/cache/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-library/2.12.2/scala-library-2.12.2.jar[0m
+[0m[[0mdebug[0m] [0m	-classpath[0m
+[0m[[0mdebug[0m] [0m	/home/harry/code/github/qidong/target/scala-2.12/classes:/home/harry/.coursier/cache/v1/https/repo1.maven.org/maven2/org/scalaz/scalaz-concurrent_2.12/7.2.12/scalaz-concurrent_2.12-7.2.12.jar:/home/harry/.coursier/cache/v1/https/repo1.maven.org/maven2/org/scalactic/scalactic_2.12/3.0.1/scalactic_2.12-3.0.1.jar:/home/harry/.coursier/cache/v1/https/repo1.maven.org/maven2/io/monix/monix-eval_2.12/2.3.0/monix-eval_2.12-2.3.0.jar:/home/harry/.coursier/cache/v1/https/repo1.maven.org/maven2/io/monix/monix-types_2.12/2.3.0/monix-types_2.12-2.3.0.jar:/home/harry/.coursier/cache/v1/https/repo1.maven.org/maven2/org/scalaz/scalaz-core_2.12/7.2.12/scalaz-core_2.12-7.2.12.jar:/home/harry/.coursier/cache/v1/https/repo1.maven.org/maven2/org/jctools/jctools-core/2.0.1/jctools-core-2.0.1.jar:/home/harry/.coursier/cache/v1/https/repo1.maven.org/maven2/org/reactivestreams/reactive-streams/1.0.0/reactive-streams-1.0.0.jar:/home/harry/.coursier/cache/v1/https/repo1.maven.org/maven2/com/chuusai/shapeless_2.12/2.3.2/shapeless_2.12-2.3.2.jar:/home/harry/.coursier/cache/v1/https/repo1.maven.org/maven2/io/monix/monix-reactive_2.12/2.3.0/monix-reactive_2.12-2.3.0.jar:/home/harry/.coursier/cache/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-reflect/2.12.2/scala-reflect-2.12.2.jar:/home/harry/.coursier/cache/v1/https/repo1.maven.org/maven2/joda-time/joda-time/2.9.9/joda-time-2.9.9.jar:/home/harry/.coursier/cache/v1/https/repo1.maven.org/maven2/org/scalaz/scalaz-effect_2.12/7.2.12/scalaz-effect_2.12-7.2.12.jar:/home/harry/.coursier/cache/v1/https/repo1.maven.org/maven2/org/typelevel/macro-compat_2.12/1.1.1/macro-compat_2.12-1.1.1.jar:/home/harry/.coursier/cache/v1/https/repo1.maven.org/maven2/io/monix/monix-execution_2.12/2.3.0/monix-execution_2.12-2.3.0.jar[0m
+[0m[[0mdebug[0m] [0mScala compilation took 8.99905672 s[0m
+[0m[[0mdebug[0m] [0m[naha] Invalidating /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/MState.scala...[0m
+[0m[[0mdebug[0m] [0m[naha] Invalidating (transitively) by inheritance from /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/MState.scala...[0m
+[0m[[0mdebug[0m] [0m[naha] Initial set of included nodes: Set(/home/harry/code/github/qidong/src/main/scala/qidong/pipeline/MState.scala)[0m
+[0m[[0mdebug[0m] [0m[naha] Invalidated by transitive inheritance dependency: Set(/home/harry/code/github/qidong/src/main/scala/qidong/pipeline/MState.scala)[0m
+[0m[[0mdebug[0m] [0m[naha] The /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/MState.scala source file has the following regular definitions changed:[0m
+[0m[[0mdebug[0m] [0m[naha] 	notify, name, resume, wait, copy$default$2, $asInstanceOf, productArity, equals, asInstanceOf, synchronized, $isInstanceOf, MSucc, canEqual, productPrefix, notifyAll, MFailed, isInstanceOf, <init>, ex, ==, clone, $init$, MState, copy$default$3, copy, toString, MRunning, !=, getClass, copy$default$1, ne, eq, productIterator, ##, finalize, productElement, hashCode.[0m
+[0m[[0mdebug[0m] [0m[naha] All member reference dependencies will be considered within this context.[0m
+[0m[[0mdebug[0m] [0m[naha] The following modified names cause invalidation of /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/EvaluationModule.scala: Set(name, asInstanceOf, MFailed, isInstanceOf, <init>, ex)[0m
+[0m[[0mdebug[0m] [0m[naha] The following modified names cause invalidation of /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/MMs.scala: Set(name, asInstanceOf, MFailed, isInstanceOf, <init>, ==, toString, eq)[0m
+[0m[[0mdebug[0m] [0m[naha] Invalidating /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/CompositionModule.scala...[0m
+[0m[[0mdebug[0m] [0m[naha] Invalidating (transitively) by inheritance from /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/CompositionModule.scala...[0m
+[0m[[0mdebug[0m] [0m[naha] Initial set of included nodes: Set(/home/harry/code/github/qidong/src/main/scala/qidong/pipeline/CompositionModule.scala)[0m
+[0m[[0mdebug[0m] [0m[naha] Including /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/ops.scala by /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/CompositionModule.scala[0m
+[0m[[0mdebug[0m] [0m[naha] Invalidated by transitive inheritance dependency: Set(/home/harry/code/github/qidong/src/main/scala/qidong/pipeline/CompositionModule.scala, /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/ops.scala)[0m
+[0m[[0mdebug[0m] [0m[naha] The /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/CompositionModule.scala source file has the following implicit definitions changed:[0m
+[0m[[0mdebug[0m] [0m[naha] 	m_mlist, coinductively, mlist_m, m, fn, mnil, m_mCompose, ms.[0m
+[0m[[0mdebug[0m] [0m[naha] All member reference dependencies will be considered within this context.[0m
+[0m[[0mdebug[0m] [0m[naha] The following member ref dependencies of /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/CompositionModule.scala are invalidated:[0m
+[0m[[0mdebug[0m] [0m[naha] 	/home/harry/code/github/qidong/src/main/scala/qidong/pipeline/ops.scala[0m
+[0m[[0mdebug[0m] [0m[naha] The following member ref dependencies of /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/ops.scala are invalidated:[0m
+[0m[[0mdebug[0m] [0m[naha] 	/home/harry/code/github/qidong/src/main/scala/qidong/pipeline/MMs.scala[0m
+[0m[[0mdebug[0m] [0m[naha] Invalidating /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/CompatibleCheckModule.scala...[0m
+[0m[[0mdebug[0m] [0m[naha] Invalidating (transitively) by inheritance from /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/CompatibleCheckModule.scala...[0m
+[0m[[0mdebug[0m] [0m[naha] Initial set of included nodes: Set(/home/harry/code/github/qidong/src/main/scala/qidong/pipeline/CompatibleCheckModule.scala)[0m
+[0m[[0mdebug[0m] [0m[naha] Including /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/ops.scala by /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/CompatibleCheckModule.scala[0m
+[0m[[0mdebug[0m] [0m[naha] Invalidated by transitive inheritance dependency: Set(/home/harry/code/github/qidong/src/main/scala/qidong/pipeline/CompatibleCheckModule.scala, /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/ops.scala)[0m
+[0m[[0mdebug[0m] [0m[naha] The /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/CompatibleCheckModule.scala source file has the following implicit definitions changed:[0m
+[0m[[0mdebug[0m] [0m[naha] 	isCompatible, coinductively, nil, mIO, fnIO, msIO.[0m
+[0m[[0mdebug[0m] [0m[naha] All member reference dependencies will be considered within this context.[0m
+[0m[[0mdebug[0m] [0m[naha] The following member ref dependencies of /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/CompatibleCheckModule.scala are invalidated:[0m
+[0m[[0mdebug[0m] [0m[naha] 	/home/harry/code/github/qidong/src/main/scala/qidong/pipeline/ops.scala[0m
+[0m[[0mdebug[0m] [0m[naha] The following member ref dependencies of /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/ops.scala are invalidated:[0m
+[0m[[0mdebug[0m] [0m[naha] 	/home/harry/code/github/qidong/src/main/scala/qidong/pipeline/MMs.scala[0m
+[0m[[0mdebug[0m] [0m[naha] Invalidating /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/ops.scala...[0m
+[0m[[0mdebug[0m] [0m[naha] Invalidating (transitively) by inheritance from /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/ops.scala...[0m
+[0m[[0mdebug[0m] [0m[naha] Initial set of included nodes: Set(/home/harry/code/github/qidong/src/main/scala/qidong/pipeline/ops.scala)[0m
+[0m[[0mdebug[0m] [0m[naha] Invalidated by transitive inheritance dependency: Set(/home/harry/code/github/qidong/src/main/scala/qidong/pipeline/ops.scala)[0m
+[0m[[0mdebug[0m] [0m[naha] The /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/ops.scala source file has the following implicit definitions changed:[0m
+[0m[[0mdebug[0m] [0m[naha] 	isCompatible, m_mlist, eval_m, coinductively, mlist_m, decodem, eval_nil, m, eval_ms, nil, mIO, fn, MsOps, mnil, m_mCompose, decodems, fnIO, msIO, ms.[0m
+[0m[[0mdebug[0m] [0m[naha] All member reference dependencies will be considered within this context.[0m
+[0m[[0mdebug[0m] [0m[naha] The following member ref dependencies of /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/ops.scala are invalidated:[0m
+[0m[[0mdebug[0m] [0m[naha] 	/home/harry/code/github/qidong/src/main/scala/qidong/pipeline/MMs.scala[0m
+[0m[[0mdebug[0m] [0m[naha] Invalidating /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/Evalable.scala...[0m
+[0m[[0mdebug[0m] [0m[naha] Invalidating (transitively) by inheritance from /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/Evalable.scala...[0m
+[0m[[0mdebug[0m] [0m[naha] Initial set of included nodes: Set(/home/harry/code/github/qidong/src/main/scala/qidong/pipeline/Evalable.scala)[0m
+[0m[[0mdebug[0m] [0m[naha] Invalidated by transitive inheritance dependency: Set(/home/harry/code/github/qidong/src/main/scala/qidong/pipeline/Evalable.scala)[0m
+[0m[[0mdebug[0m] [0m[naha] The /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/Evalable.scala source file has the following implicit definitions changed:[0m
+[0m[[0mdebug[0m] [0m[naha] 	disjunctionTrans, idTrans, optionTrans, tryTrans, scalazTaskEvalCap, monixTaskEvalCap, eitherTrans, futureTrans.[0m
+[0m[[0mdebug[0m] [0m[naha] All member reference dependencies will be considered within this context.[0m
+[0m[[0mdebug[0m] [0m[naha] The following member ref dependencies of /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/Evalable.scala are invalidated:[0m
+[0m[[0mdebug[0m] [0m[naha] 	/home/harry/code/github/qidong/src/main/scala/qidong/pipeline/EvaluationModule.scala[0m
+[0m[[0mdebug[0m] [0m[naha] 	/home/harry/code/github/qidong/src/main/scala/qidong/pipeline/MBuilder.scala[0m
+[0m[[0mdebug[0m] [0m[naha] 	/home/harry/code/github/qidong/src/main/scala/qidong/pipeline/MMs.scala[0m
+[0m[[0mdebug[0m] [0m[naha] 	/home/harry/code/github/qidong/src/main/scala/qidong/pipeline/ops.scala[0m
+[0m[[0mdebug[0m] [0m[naha] Invalidating /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/CallGraphModule.scala...[0m
+[0m[[0mdebug[0m] [0m[naha] Invalidating (transitively) by inheritance from /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/CallGraphModule.scala...[0m
+[0m[[0mdebug[0m] [0m[naha] Initial set of included nodes: Set(/home/harry/code/github/qidong/src/main/scala/qidong/pipeline/CallGraphModule.scala)[0m
+[0m[[0mdebug[0m] [0m[naha] Including /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/ops.scala by /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/CallGraphModule.scala[0m
+[0m[[0mdebug[0m] [0m[naha] Invalidated by transitive inheritance dependency: Set(/home/harry/code/github/qidong/src/main/scala/qidong/pipeline/CallGraphModule.scala, /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/ops.scala)[0m
+[0m[[0mdebug[0m] [0m[naha] The /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/CallGraphModule.scala source file has the following implicit definitions changed:[0m
+[0m[[0mdebug[0m] [0m[naha] 	nil, decodems, decodem, coinductively.[0m
+[0m[[0mdebug[0m] [0m[naha] All member reference dependencies will be considered within this context.[0m
+[0m[[0mdebug[0m] [0m[naha] The following member ref dependencies of /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/CallGraphModule.scala are invalidated:[0m
+[0m[[0mdebug[0m] [0m[naha] 	/home/harry/code/github/qidong/src/main/scala/qidong/pipeline/ops.scala[0m
+[0m[[0mdebug[0m] [0m[naha] The following member ref dependencies of /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/ops.scala are invalidated:[0m
+[0m[[0mdebug[0m] [0m[naha] 	/home/harry/code/github/qidong/src/main/scala/qidong/pipeline/MMs.scala[0m
+[0m[[0mdebug[0m] [0m[naha] Invalidating /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/EvaluationModule.scala...[0m
+[0m[[0mdebug[0m] [0m[naha] Invalidating (transitively) by inheritance from /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/EvaluationModule.scala...[0m
+[0m[[0mdebug[0m] [0m[naha] Initial set of included nodes: Set(/home/harry/code/github/qidong/src/main/scala/qidong/pipeline/EvaluationModule.scala)[0m
+[0m[[0mdebug[0m] [0m[naha] Including /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/ops.scala by /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/EvaluationModule.scala[0m
+[0m[[0mdebug[0m] [0m[naha] Invalidated by transitive inheritance dependency: Set(/home/harry/code/github/qidong/src/main/scala/qidong/pipeline/EvaluationModule.scala, /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/ops.scala)[0m
+[0m[[0mdebug[0m] [0m[naha] The /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/EvaluationModule.scala source file has the following implicit definitions changed:[0m
+[0m[[0mdebug[0m] [0m[naha] 	eval_nil, coinductively, eval_ms, eval_m.[0m
+[0m[[0mdebug[0m] [0m[naha] All member reference dependencies will be considered within this context.[0m
+[0m[[0mdebug[0m] [0m[naha] The following member ref dependencies of /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/EvaluationModule.scala are invalidated:[0m
+[0m[[0mdebug[0m] [0m[naha] 	/home/harry/code/github/qidong/src/main/scala/qidong/pipeline/MMs.scala[0m
+[0m[[0mdebug[0m] [0m[naha] 	/home/harry/code/github/qidong/src/main/scala/qidong/pipeline/ops.scala[0m
+[0m[[0mdebug[0m] [0m[naha] The following member ref dependencies of /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/ops.scala are invalidated:[0m
+[0m[[0mdebug[0m] [0m[naha] 	/home/harry/code/github/qidong/src/main/scala/qidong/pipeline/MMs.scala[0m
+[0m[[0mdebug[0m] [0m[naha] Invalidating /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/MMsIdentityModule.scala...[0m
+[0m[[0mdebug[0m] [0m[naha] Invalidating (transitively) by inheritance from /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/MMsIdentityModule.scala...[0m
+[0m[[0mdebug[0m] [0m[naha] Initial set of included nodes: Set(/home/harry/code/github/qidong/src/main/scala/qidong/pipeline/MMsIdentityModule.scala)[0m
+[0m[[0mdebug[0m] [0m[naha] Including /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/ops.scala by /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/MMsIdentityModule.scala[0m
+[0m[[0mdebug[0m] [0m[naha] Invalidated by transitive inheritance dependency: Set(/home/harry/code/github/qidong/src/main/scala/qidong/pipeline/MMsIdentityModule.scala, /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/ops.scala)[0m
+[0m[[0mdebug[0m] [0m[naha] The /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/MMsIdentityModule.scala source file has the following implicit definitions changed:[0m
+[0m[[0mdebug[0m] [0m[naha] 	m, ms, fn.[0m
+[0m[[0mdebug[0m] [0m[naha] All member reference dependencies will be considered within this context.[0m
+[0m[[0mdebug[0m] [0m[naha] The following member ref dependencies of /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/MMsIdentityModule.scala are invalidated:[0m
+[0m[[0mdebug[0m] [0m[naha] 	/home/harry/code/github/qidong/src/main/scala/qidong/pipeline/ops.scala[0m
+[0m[[0mdebug[0m] [0m[naha] The following member ref dependencies of /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/ops.scala are invalidated:[0m
+[0m[[0mdebug[0m] [0m[naha] 	/home/harry/code/github/qidong/src/main/scala/qidong/pipeline/MMs.scala[0m
+[0m[[0mdebug[0m] [0m[naha] Invalidating /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/MBuilder.scala...[0m
+[0m[[0mdebug[0m] [0m[naha] Invalidating (transitively) by inheritance from /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/MBuilder.scala...[0m
+[0m[[0mdebug[0m] [0m[naha] Initial set of included nodes: Set(/home/harry/code/github/qidong/src/main/scala/qidong/pipeline/MBuilder.scala)[0m
+[0m[[0mdebug[0m] [0m[naha] Invalidated by transitive inheritance dependency: Set(/home/harry/code/github/qidong/src/main/scala/qidong/pipeline/MBuilder.scala)[0m
+[0m[[0mdebug[0m] [0m[naha] The /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/MBuilder.scala source file has the following implicit definitions changed:[0m
+[0m[[0mdebug[0m] [0m[naha] 	genericFn, unitFn, idF0Fn, f0Fn, idFn, idUnitFn.[0m
+[0m[[0mdebug[0m] [0m[naha] All member reference dependencies will be considered within this context.[0m
+[0m[[0mdebug[0m] [0m[naha] The following member ref dependencies of /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/MBuilder.scala are invalidated:[0m
+[0m[[0mdebug[0m] [0m[naha] 	/home/harry/code/github/qidong/src/main/scala/qidong/pipeline/CompositionModule.scala[0m
+[0m[[0mdebug[0m] [0m[naha] 	/home/harry/code/github/qidong/src/main/scala/qidong/pipeline/MMsIdentityModule.scala[0m
+[0m[[0mdebug[0m] [0m[naha] Invalidating /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/MMs.scala...[0m
+[0m[[0mdebug[0m] [0m[naha] Invalidating (transitively) by inheritance from /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/MMs.scala...[0m
+[0m[[0mdebug[0m] [0m[naha] Initial set of included nodes: Set(/home/harry/code/github/qidong/src/main/scala/qidong/pipeline/MMs.scala)[0m
+[0m[[0mdebug[0m] [0m[naha] Invalidated by transitive inheritance dependency: Set(/home/harry/code/github/qidong/src/main/scala/qidong/pipeline/MMs.scala)[0m
+[0m[[0mdebug[0m] [0m[naha] The /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/MMs.scala source file has the following implicit definitions changed:[0m
+[0m[[0mdebug[0m] [0m[naha] 	mProfuctor, mFunctor.[0m
+[0m[[0mdebug[0m] [0m[naha] All member reference dependencies will be considered within this context.[0m
+[0m[[0mdebug[0m] [0m[naha] The following member ref dependencies of /home/harry/code/github/qidong/src/main/scala/qidong/pipeline/MMs.scala are invalidated:[0m
+[0m[[0mdebug[0m] [0m[naha] 	/home/harry/code/github/qidong/src/main/scala/qidong/pipeline/CallGraphModule.scala[0m
+[0m[[0mdebug[0m] [0m[naha] 	/home/harry/code/github/qidong/src/main/scala/qidong/pipeline/CompatibleCheckModule.scala[0m
+[0m[[0mdebug[0m] [0m[naha] 	/home/harry/code/github/qidong/src/main/scala/qidong/pipeline/CompositionModule.scala[0m
+[0m[[0mdebug[0m] [0m[naha] 	/home/harry/code/github/qidong/src/main/scala/qidong/pipeline/EvaluationModule.scala[0m
+[0m[[0mdebug[0m] [0m[naha] 	/home/harry/code/github/qidong/src/main/scala/qidong/pipeline/MBuilder.scala[0m
+[0m[[0mdebug[0m] [0m[naha] 	/home/harry/code/github/qidong/src/main/scala/qidong/pipeline/MMsIdentityModule.scala[0m
+[0m[[0mdebug[0m] [0m[naha] New invalidations:[0m
+[0m[[0mdebug[0m] [0m[naha] 	Set()[0m
+[0m[[0mdebug[0m] [0m[naha] Initial set of included nodes: Set()[0m
+[0m[[0mdebug[0m] [0m[naha] Previously invalidated, but (transitively) depend on new invalidations:[0m
+[0m[[0mdebug[0m] [0m[naha] 	Set()[0m
+[0m[[0mdebug[0m] [0m[naha] All newly invalidated sources after taking into account (previously) recompiled sources:Set()[0m

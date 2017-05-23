@@ -1,7 +1,10 @@
- scalaVersion := "2.12.2"
- name := "qidong"
+
+scalaVersion := "2.12.2"
+
+name := "qidong"
  //val scalazVersion = "7.3.0-M12"
- val scalazVersion = "7.2.12"
+
+val scalazVersion = "7.2.12"
 
 //scala libs
 libraryDependencies ++= Seq(
@@ -20,6 +23,7 @@ libraryDependencies ++= Seq(
 	"org.scalatest" %% "scalatest" % "3.0.1" % "test")
 
 autoCompilerPlugins := true
+
 addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.9.3")
 
 scalacOptions ++= Seq(

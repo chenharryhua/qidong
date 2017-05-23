@@ -15,7 +15,7 @@ import scalaz.Monad
 import scalaz.Scalaz.ToEitherOps
 import scalaz.\/
 import scalaz.\/-
-import scalaz.Id.Identity
+import scalaz.Need
 import scalaz.concurrent.{ Task => STask }
 import java.util.concurrent.TimeUnit
 
@@ -101,8 +101,8 @@ object Evalable {
       }
   }
 
-  implicit def idTrans[A] = new Evalable[Identity, A] {
-    override def transform[E[_]](fa: => Identity[A])(implicit EC: EvalCap[E]): E[A] =
+  implicit def idTrans[A] = new Evalable[Need, A] {
+    override def transform[E[_]](fa: => Need[A])(implicit EC: EvalCap[E]): E[A] =
       EC.point(fa.value)
   }
 

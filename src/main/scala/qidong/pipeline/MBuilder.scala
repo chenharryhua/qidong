@@ -1,6 +1,6 @@
 package qidong.pipeline
 
-import scalaz.Id.Identity
+import scalaz.Need
 
 abstract class MBuilder[Fn] {
   type F[_]
@@ -15,32 +15,32 @@ trait LowerestPriority {
     type I = I0
     type O = O0
   }
-  implicit def idFn[I0, O0](implicit eval: Evalable[Identity, O0]): Aux[I0 => O0, Identity, I0, O0] =
+  implicit def idFn[I0, O0](implicit eval: Evalable[Need, O0]): Aux[I0 => O0, Need, I0, O0] =
     new MBuilder[I0 => O0] {
-      override type F[A] = Identity[A]
+      override type F[A] = Need[A]
       override type I = I0
       override type O = O0
       override def apply(m: I => O): M[F, I, O] =
-        M[Identity, I, O](i => scalaz.Need(m(i)))
+        M[Need, I, O](i => scalaz.Need(m(i)))
     }
 }
 
 trait LowerPriority extends LowerestPriority {
-  implicit def idF0Fn[O0](implicit eval: Evalable[Identity, O0]): Aux[() => O0, Identity, Any, O0] =
+  implicit def idF0Fn[O0](implicit eval: Evalable[Need, O0]): Aux[() => O0, Need, Any, O0] =
     new MBuilder[() => O0] {
-      override type F[A] = Identity[A]
+      override type F[A] = Need[A]
       override type I = Any
       override type O = O0
       override def apply(m: () => O): M[F, Any, O] =
-        M[Identity, I, O]((_: Any) => scalaz.Need(m()))
+        M[Need, I, O]((_: Any) => scalaz.Need(m()))
     }
-  implicit def idUnitFn[O0](implicit eval: Evalable[Identity, O0]): Aux[Unit => O0, Identity, Any, O0] =
+  implicit def idUnitFn[O0](implicit eval: Evalable[Need, O0]): Aux[Unit => O0, Need, Any, O0] =
     new MBuilder[Unit => O0] {
-      override type F[A] = Identity[A]
+      override type F[A] = Need[A]
       override type I = Any
       override type O = O0
       override def apply(m: Unit => O): M[F, Any, O] =
-        M[Identity, I, O]((_: Any) => scalaz.Need(m(Unit)))
+        M[Need, I, O]((_: Any) => scalaz.Need(m(Unit)))
     }
   implicit def genericFn[F0[_], I0, O0](implicit eval: Evalable[F0, O0]): Aux[I0 => F0[O0], F0, I0, O0] =
     new MBuilder[I0 => F0[O0]] {
