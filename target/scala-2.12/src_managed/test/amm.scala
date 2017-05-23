@@ -1,1 +1,0 @@
-object amm extends App { ammonite.Main().run() }
