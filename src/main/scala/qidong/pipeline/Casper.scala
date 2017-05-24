@@ -73,8 +73,45 @@ object HeadOf {
     }
 }
 
-trait MapFst[MM, I0, I] {
+trait LastOf[MM] {
   type Out
+  def apply(mm: MM): Out
+}
+
+object LastOf {
+  implicit def m[F[_], I, O] =
+    new LastOf[M[F, I, O] :: HNil] {
+      type Out = M[F, I, O]
+      def apply(mm: M[F, I, O] :: HNil): Out = mm.head
+    }
+  implicit def singleM[F[_], I, O] =
+    new LastOf[M[F, I, O]] {
+      type Out = M[F, I, O]
+      def apply(mm: M[F, I, O]): Out = mm
+    }
+
+  implicit def ms[MS <: HList](implicit lastOf: LastOf[MS]) =
+    new LastOf[Ms[MS] :: HNil] {
+      type Out = lastOf.Out
+      def apply(mm: Ms[MS] :: HNil): Out = lastOf(mm.head.ms)
+    }
+  implicit def singleMs[MS <: HList](implicit lastOf: LastOf[MS]) =
+    new LastOf[Ms[MS]] {
+      type Out = lastOf.Out
+      def apply(mm: Ms[MS]): Out = lastOf(mm.ms)
+    }
+
+  implicit def coinductively[MM, ML <: HList, Out0](
+    implicit last: Last.Aux[ML, Out0],
+    lastOf: LastOf[Out0]) =
+    new LastOf[MM :: ML] {
+      type Out = lastOf.Out
+      def apply(mm: MM :: ML): Out = lastOf(last(mm.tail))
+    }
+}
+
+trait MapFst[MM, I0, I] {
+  type Out <: HList
   def apply(mm: MM, f: I0 => I): Out
 }
 
@@ -89,8 +126,8 @@ object MapFst {
 
   implicit def ms[MS <: HList, ML <: HList, I0, I](implicit mapFst: MapFst[MS, I0, I]) =
     new MapFst[Ms[MS] :: ML, I0, I] {
-      type Out = Ms[mapFst.Out :: ML]
-      def apply(mm: Ms[MS] :: ML, f: I0 => I): Out = mm.head.copy(mapFst(mm.head.ms, f) :: mm.tail)
+      type Out = Ms[mapFst.Out] :: ML
+      def apply(mm: Ms[MS] :: ML, f: I0 => I): Out = mm.head.copy(mapFst(mm.head.ms, f)) :: mm.tail
     }
 }
 

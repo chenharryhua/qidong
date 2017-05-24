@@ -16,7 +16,11 @@ object ops extends CallGraphModule
 
     final def name(str: String)(implicit naming: Naming[M2]) = naming(m2, str)
 
+    def mapfst[I0, I](f: I0 => I)(implicit mf: MapFst[M2, I0, I]): mf.Out = mf(m2, f)
+    def mapsnd[O, O2](f: O => O2)(implicit mf: MapSnd[M2, O, O2]): mf.Out = mf(m2, f)
+
     final def headM(implicit headOf: HeadOf[M2]): headOf.Out = headOf(m2)
+    final def lastM(implicit lastOf: LastOf[M2]): lastOf.Out = lastOf(m2)
 
     final def tree(implicit callgraph: CallGraph[M2]): Tree[String] = callgraph(m2, Node("root", Stream()))
     final def run[E[_]: EvalCap](implicit decomposer: Decomposer[M2, E]): decomposer.Out = decomposer(m2)

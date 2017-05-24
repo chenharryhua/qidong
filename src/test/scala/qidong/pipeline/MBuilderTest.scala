@@ -3,10 +3,14 @@ package qidong.pipeline
 import org.scalatest.FunSuite
 import scala.util.Try
 import shapeless.test.illTyped
+import shapeless.test.sameTyped
+import shapeless.{ HNil, ::, HList }
+import scalaz.Need
 
 class MBuilderTest extends FunSuite {
   import ops._
-  def sameType[T, U](t: T, u: T)(implicit ev: T =:= U) = true
+  import fixture._
+
   test("should be same type") {
     val m1 = ((i: Int) => i.toString).name("m1")
     val m2 = ((s: String) => s.toInt).name("m2")
@@ -14,7 +18,7 @@ class MBuilderTest extends FunSuite {
     val m3 = (i: Int) => i.toString
     val m4 = (s: String) => s.toInt
     val ms2 = m3 =>: m4
-    sameType(ms1, ms2)
+    sameTyped[::[M[Need, Int, String], ::[M[Need, String, Int], HNil]]](ms1)(ms2)
 
     val m5 = (i: Int) => Try(i.toString)
     val m6 = (s: String) => Try(s.toInt)
@@ -22,11 +26,10 @@ class MBuilderTest extends FunSuite {
     val m7 = ((i: Int) => Try(i.toString)).name("m7")
     val m8 = ((s: String) => Try(s.toInt)).name("m8")
     val ms4 = m7 =>: m8
-    sameType(ms3, ms4)
+    sameTyped[::[M[Try, Int, String], ::[M[Try, String, Int], HNil]]](ms3)(ms4)
 
     val ms5 = m1 =>: m2 =>: m3 =>: m4
     val ms6 = m5 =>: m6 =>: m7 =>: m8
-
     val mms = ms5 =>: ms6
   }
 
@@ -37,7 +40,7 @@ class MBuilderTest extends FunSuite {
     val m3 = (i: Int) => i.toString
     val m4 = (s: String) => s.toInt
     val ms2 = m3 =>: m4
-    sameType(ms1, ms2)
+    sameTyped[::[M[Need, Int, String], ::[M[Need, String, Int], HNil]]](ms1)(ms2)
 
     val m5 = (i: Int) => Try(i.toString)
     val m6 = (s: String) => Try(s.toInt)
@@ -45,17 +48,7 @@ class MBuilderTest extends FunSuite {
     val m7 = ((i: Int) => Try(i.toString)).name("m7")
     val m8 = ((s: String) => Try(s.toInt)).name("m8")
     val ms4 = m7 =>: m8
-    sameType(ms3, ms4)
-
-    val ms5 = m1 =>: (m2 =>: m3 =>: m4).name("g1")
-    val ms6 = (m5 =>: m6).name("g2") =>: m7 =>: m8
-    val ms7 = (m5 =>: (m6 =>: m7).name("g3") =>: m8).name("g4")
-
-    val mms = ms5 =>: ms6 =>: ms7
-    val mms2 = ms6 =>: ms5 =>: ms7
-    val mms3 = (ms7 =>: ms6).name("g5") =>: ms5
-    val head = mms3.headM
-    sameType(head, m5)
+    sameTyped[::[M[Try, Int, String], ::[M[Try, String, Int], HNil]]](ms3)(ms4)
   }
 
   test("should not be composed") {
