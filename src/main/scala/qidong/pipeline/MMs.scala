@@ -32,6 +32,9 @@ final case class M[F[_], I, O](fn: I => F[O],
     def fn0(i0: I0, i: I) = this.fn(i).map(o => (i0, o))
     this.copy(fn = (fn0 _).tupled)
   }
+
+  def updateFn[F2[_], I2, O2](f: I2 => F2[O2])(implicit build: MBuilder[I2 => F2[O2]]) = this.copy(fn = build(f).fn)
+
   def keep(implicit F: Functor[F]): M[F, I, (I, O)] = this.copy(fn = (i: I) => F.map(this.fn(i))(o => (i, o)))
 
   def run[E[_]](i: I)(implicit env: EvalCap[E], trans: Evalable[F, O]): E[\/[MFailed[E, O], O]] = {
@@ -75,10 +78,13 @@ final case class Ms[M1, M2, MT <: HList](ms: M1 :: M2 :: MT,
     this.copy(ms.head :: hc.head(list) :: hc.tail(list))
   }
 
-  def keep[F[_], I, O](
+  def keep[F[_], I, O, Out0 <: HList](
     implicit headOf: HeadOf[M1 :: M2 :: MT, F, I, O],
     F: Functor[F],
-    keeping: Keeping[M2 :: MT, I]) = headOf(ms).keep :: keeping(ms.tail)
+    k2: Keeping[M2, I],
+    kn: Keeping[MT, I]) = {
+    this.copy(headOf(ms).keep :: k2(ms.tail.head) :: kn(ms.tail.tail))
+  }
 
   def run[E[_]: EvalCap](implicit decomposer: ops.Decomposer[MS, E]): decomposer.Out = decomposer(ms)
 }

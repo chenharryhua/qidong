@@ -3,52 +3,6 @@ import shapeless.{ HNil, ::, HList }
 import shapeless.ops.hlist.{ IsHCons, Last }
 import scalaz.Functor
 
-trait HeadOf[MM, F[_], I, O] {
-  def apply(mm: MM): M[F, I, O]
-}
-
-object HeadOf {
-  implicit def m[ML <: HList, F[_], I, O] =
-    new HeadOf[M[F, I, O] :: ML, F, I, O] {
-      def apply(mm: M[F, I, O] :: ML): M[F, I, O] = mm.head
-    }
-  implicit def ms[M1, M2, MT <: HList, ML <: HList, F[_], I, O](implicit headOf: HeadOf[M1 :: M2 :: MT, F, I, O]) =
-    new HeadOf[Ms[M1, M2, MT] :: ML, F, I, O] {
-      def apply(mm: Ms[M1, M2, MT] :: ML): M[F, I, O] = headOf(mm.head.ms)
-    }
-}
-
-trait LastOf[MM, F[_], I, O] {
-  def apply(mm: MM): M[F, I, O]
-}
-
-object LastOf {
-  implicit def m[F[_], I, O] =
-    new LastOf[M[F, I, O] :: HNil, F, I, O] {
-      def apply(mm: M[F, I, O] :: HNil): M[F, I, O] = mm.head
-    }
-  implicit def singleM[F[_], I, O] =
-    new LastOf[M[F, I, O], F, I, O] {
-      def apply(mm: M[F, I, O]): M[F, I, O] = mm
-    }
-
-  implicit def ms[M1, M2, MT <: HList, F[_], I, O](implicit lastOf: LastOf[M1 :: M2 :: MT, F, I, O]) =
-    new LastOf[Ms[M1, M2, MT] :: HNil, F, I, O] {
-      def apply(mm: Ms[M1, M2, MT] :: HNil): M[F, I, O] = lastOf(mm.head.ms)
-    }
-  implicit def singleMs[M1, M2, MT <: HList, F[_], I, O](implicit lastOf: LastOf[M1 :: M2 :: MT, F, I, O]) =
-    new LastOf[Ms[M1, M2, MT], F, I, O] {
-      def apply(mm: Ms[M1, M2, MT]): M[F, I, O] = lastOf(mm.ms)
-    }
-
-  implicit def coinductively[MM, ML <: HList, Out0, F[_], I, O](
-    implicit last: Last.Aux[ML, Out0],
-    lastOf: LastOf[Out0, F, I, O]) =
-    new LastOf[MM :: ML, F, I, O] {
-      def apply(mm: MM :: ML): M[F, I, O] = lastOf(last(mm.tail))
-    }
-}
-
 trait MapFst[MM, I0, I] {
   type Out
   def apply(mm: MM, f: I0 => I): Out
@@ -138,39 +92,3 @@ object MapSnd {
 //      def apply(mm: MM :: ML, f: I): Out = mm.head :: keeping(mm.tail, f)
 //    }
 //}
-
-trait Keeping[MM, I] {
-  type Out <: HList
-  def apply(mm: MM): Out
-}
-
-object Keeping {
-  type Aux[MM <: HList, I, Out0] = Keeping[MM, I] { type Out = Out0 }
-
-  implicit def m[F[_], I, O, I0](implicit F: Functor[F]) =
-    new Keeping[M[F, I, O] :: HNil, I0] {
-      type Out = M[F, (I0, I), (I0, O)] :: HNil
-      def apply(mm: M[F, I, O] :: HNil): Out =
-        mm.head.replicateInput[I0] :: HNil
-    }
-  implicit def singleM[F[_], I, O, I0](implicit F: Functor[F]) =
-    new Keeping[M[F, I, O], I0] {
-      type Out = M[F, (I0, I), (I0, O)] :: HNil
-      def apply(mm: M[F, I, O]): Out =
-        mm.replicateInput[I0] :: HNil
-    }
-
-  //  implicit def ms[MS <: HList, I](implicit keeping: Keeping[MS, I]) =
-  //    new Keeping[Ms[MS] :: HNil, I] {
-  //      type Out = Ms[keeping.Out] :: HNil
-  //      def apply(mm: Ms[MS] :: HNil): Out = mm.head.copy(keeping(mm.head.ms)) :: HNil
-  //    }
-
-  implicit def coinductively[MM, ML <: HList, I](
-    implicit keepingH: Keeping[MM, I],
-    keepingT: Keeping[ML, I]) =
-    new Keeping[MM :: ML, I] {
-      type Out = keepingH.Out :: keepingT.Out
-      def apply(mm: MM :: ML): Out = keepingH(mm.head) :: keepingT(mm.tail)
-    }
-}
