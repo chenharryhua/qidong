@@ -25,13 +25,13 @@ trait EvaluationModule {
         override type Out = Ret[E, I, O]
         override def apply(m: M[F, I, O]): Out = (i: I) => m.run[E](i)
       }
-    implicit def eval_ms[MS <: HList, E[_], I, O](
-      implicit env: EvalCap[E],
-      eval: Decomposer.Aux[MS, E, Ret[E, I, O]]): Aux[Ms[MS], E, Ret[E, I, O]] =
-      new Decomposer[Ms[MS], E] {
-        override type Out = Ret[E, I, O]
-        override def apply(m: Ms[MS]): Out = eval(m.ms)
-      }
+    //    implicit def eval_ms[MS <: HList, E[_], I, O](
+    //      implicit env: EvalCap[E],
+    //      eval: Decomposer.Aux[MS, E, Ret[E, I, O]]): Aux[Ms[MS], E, Ret[E, I, O]] =
+    //      new Decomposer[Ms[MS], E] {
+    //        override type Out = Ret[E, I, O]
+    //        override def apply(m: Ms[MS]): Out = eval(m.ms)
+    //      }
 
     implicit def eval_nil[MM, E[_], I, O](
       implicit env: EvalCap[E],

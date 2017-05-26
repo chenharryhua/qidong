@@ -14,8 +14,8 @@ trait CallGraphModule {
       def apply(m: M[F, I, O], parent: Tree[String]) =
         Node(parent.rootLabel, parent.subForest :+ Leaf(m.name))
     }
-    implicit def decodems[MS <: HList](implicit dm: CallGraph[MS]) = new CallGraph[Ms[MS]] {
-      def apply(ms: Ms[MS], parent: Tree[String]) =
+    implicit def decodems[M1, M2, MT <: HList](implicit dm: CallGraph[M1 :: M2 :: MT]) = new CallGraph[Ms[M1, M2, MT]] {
+      def apply(ms: Ms[M1, M2, MT], parent: Tree[String]) =
         Node(parent.rootLabel, parent.subForest :+ dm(ms.ms, Node(ms.name, Stream())))
     }
 

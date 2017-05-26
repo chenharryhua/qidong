@@ -1,5 +1,5 @@
 package qidong.pipeline
-import shapeless.HList
+import shapeless.{ ::, HList }
 
 trait MMsIdentityModule {
   trait Naming[MM] {
@@ -7,9 +7,9 @@ trait MMsIdentityModule {
     def apply(m: MM, name: String): Out
   }
   object Naming {
-    implicit def ms[MS <: HList] = new Naming[MS] {
-      override type Out = Ms[MS]
-      override def apply(ms: MS, name: String): Out = Ms(ms).name(name)
+    implicit def ms[M1, M2, MT <: HList] = new Naming[M1 :: M2 :: MT] {
+      override type Out = Ms[M1, M2, MT]
+      override def apply(ms: M1 :: M2 :: MT, name: String): Out = Ms(ms).name(name)
     }
     implicit def m[F[_], I, O] = new Naming[M[F, I, O]] {
       override type Out = M[F, I, O]

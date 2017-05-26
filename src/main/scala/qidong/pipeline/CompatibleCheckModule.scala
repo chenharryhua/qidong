@@ -17,12 +17,12 @@ trait CompatibleCheckModule {
         type I = I0
         type O = O0
       }
-    implicit def msIO[ML <: HList, I0, O0](
-      implicit ev: Aux[ML, I0, O0]): Aux[Ms[ML], I0, O0] =
-      new IoOf[Ms[ML]] {
-        type I = I0
-        type O = O0
-      }
+    //    implicit def msIO[ML <: HList, I0, O0](
+    //      implicit ev: Aux[ML, I0, O0]): Aux[Ms[ML], I0, O0] =
+    //      new IoOf[Ms[ML]] {
+    //        type I = I0
+    //        type O = O0
+    //      }
     implicit def nil[MM](implicit ev: IoOf[MM]) = new IoOf[MM :: HNil] {
       type I = ev.I
       type O = ev.O

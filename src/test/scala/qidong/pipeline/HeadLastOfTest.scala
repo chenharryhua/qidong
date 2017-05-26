@@ -13,6 +13,7 @@ class HeadLastOfTest extends FunSuite {
     val m = (tm =>: (intList =>: intList).name("g1") =>: intList).name("g2").headM
     sameTyped[M[scalaz.Need, Ran, Int]](tm)(m)
   }
+
   test("lastof list") {
     val tm = ((i: Int) => Ran()).name("m1")
     val m = (intList =>: (intList =>: intList =>: tm).name("g1")).name("g2").lastM
