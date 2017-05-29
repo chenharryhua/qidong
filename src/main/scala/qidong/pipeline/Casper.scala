@@ -1,12 +1,10 @@
 package qidong.pipeline
-import shapeless.{ HNil, ::, HList }
+import shapeless.{ HNil, ::, HList, DepFn1 }
 import shapeless.ops.hlist.Last
 import scalaz.Functor
 
-sealed trait Casper[MM] extends Serializable {
-  type Out
-  def apply(mm: MM): Out
-}
+sealed trait Casper[MM] extends DepFn1[MM] with Serializable
+
 object Casper {
   type Aux[MM, Out0] = Casper[MM] { type Out = Out0 }
 
@@ -29,9 +27,8 @@ object Casper {
     }
 }
 
-sealed trait ListOfCaspers[MM] extends Serializable {
-  type Out <: HList
-  def apply(mm: MM): Out
+sealed trait ListOfCaspers[MM] extends DepFn1[MM] with Serializable {
+  override type Out <: HList
 }
 
 trait Lowerest {

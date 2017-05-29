@@ -2,7 +2,7 @@ package qidong.pipeline
 
 import scalaz.Need
 
-abstract class MBuilder[Fn] {
+abstract class MBuilder[Fn] extends Serializable {
   type F[_]
   type I
   type O

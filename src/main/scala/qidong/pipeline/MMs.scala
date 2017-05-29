@@ -6,8 +6,10 @@ import scalaz.Functor
 import scalaz.Profunctor
 import scalaz.Scalaz.ToFunctorOps
 import scalaz.\/
-import shapeless.{ HNil, HList, :: }
+import shapeless.::
+import shapeless.HList
 import shapeless.ops.hlist.IsHCons
+import org.joda.time.DateTime
 
 sealed abstract class MMs {
   def name(str: String): MMs
@@ -20,7 +22,7 @@ final case class M[F[_], I, O](fn: I => F[O],
                                uuid: UUID = UUID.randomUUID(),
                                private val cname: Option[String] = None,
                                private val stateUpdate: Option[MState => Unit] = None) extends MMs {
-  override def name(str: String): M[F, I, O] = this.copy(cname = Some(str))
+  override def name(name: String): M[F, I, O] = this.copy(cname = Some(name))
   override def name: String = cname.getOrElse(uuid.toString)
   override def stateUpdate(f: MState => Unit): M[F, I, O] = this.copy(stateUpdate = Some(f))
 
@@ -37,9 +39,10 @@ final case class M[F[_], I, O](fn: I => F[O],
 
   def keep(implicit F: Functor[F]): M[F, I, (I, O)] = this.copy(fn = (i: I) => F.map(this.fn(i))(o => (i, o)))
 
-  def run[E[_]](i: I)(implicit env: EvalCap[E], trans: Evalable[F, O]): E[\/[MFailed[E, O], O]] = {
+  def run[E[_]](i: I)(implicit env: EvalCap[E], trans: Evalable[F, O]): E[\/[MFailure[E, O], O]] = {
+    val start = DateTime.now
     val cur = env.attempt(trans.transform(fn(i)))
-    env.map(cur)(_.leftMap(x => MFailed(this.name, () => this.run[E](i), x)))
+    env.map(cur)(_.leftMap(x => MFailure(this.name, () => this.run[E](i), x, start, DateTime.now)))
   }
 }
 
@@ -58,33 +61,34 @@ object M {
 final case class Ms[M1, M2, MT <: HList](ms: M1 :: M2 :: MT,
                                          uuid: UUID = UUID.randomUUID(),
                                          private val cname: Option[String] = None,
-                                         private val stateUpdate: Option[MState => Unit] = None) extends MMs {
+                                         val stateUpdate: Option[MState => Unit] = None,
+                                         val resumeFromGroupStart: Boolean = false) extends MMs {
   type MS = M1 :: M2 :: MT
-  override def name(str: String): Ms[M1, M2, MT] = this.copy(cname = Some(str))
+  override def name(name: String): Ms[M1, M2, MT] = this.copy(cname = Some(name))
 
   override def name: String = cname.getOrElse(uuid.toString)
   override def stateUpdate(f: MState => Unit): Ms[M1, M2, MT] = this.copy(stateUpdate = Some(f))
+  def resumeFromGroupBegin = this.copy(resumeFromGroupStart = true)
 
   final def headM[F[_], I, O](implicit headOf: HeadOf[MS, F, I, O]): M[F, I, O] = headOf(ms)
   final def lastM[F[_], I, O](implicit lastOf: LastOf[MS, F, I, O]): M[F, I, O] = lastOf(ms)
 
-  def map[O, O2, Out0 <: HList](f: O => O2)(implicit snd: MapSnd.Aux[M2 :: MT, O, O2, Out0],
-                                            hc: IsHCons[Out0]) = this.mapsnd(f)
+  def map[O, O2, Out0 <: HList, H, T <: HList](f: O => O2)(implicit snd: MapSnd.Aux[M2 :: MT, O, O2, Out0],
+                                                           hc: IsHCons.Aux[Out0, H, T]) = this.mapsnd(f)
   def mapfst[I0, I](f: I0 => I)(implicit fst: MapFst[M1, I0, I]) = this.copy(fst(ms.head, f) :: ms.tail)
-  def mapsnd[O, O2, Out0 <: HList](f: O => O2)(
+  def mapsnd[O, O2, Out0 <: HList, H, T <: HList](f: O => O2)(
     implicit snd: MapSnd.Aux[M2 :: MT, O, O2, Out0],
-    hc: IsHCons[Out0]) = {
+    hc: IsHCons.Aux[Out0, H, T]): Ms[M1, H, T] = {
     val list = snd(ms.tail, f)
     this.copy(ms.head :: hc.head(list) :: hc.tail(list))
   }
 
-  def keep[F[_], I, O, Out0 <: HList](
-    implicit headOf: HeadOf[M1 :: M2 :: MT, F, I, O],
-    F: Functor[F],
-    k2: Keeping[M2, I],
-    kn: Keeping[MT, I]) = {
-    this.copy(headOf(ms).keep :: k2(ms.tail.head) :: kn(ms.tail.tail))
-  }
+  def keep[F[_], I, O, Out3 <: HList](
+    implicit headOf: HeadOf[MS, F, I, O],
+    update: KeepHead[M1],
+    update2: KeepRest[M2, I],
+    update3: KeepRest.Aux[MT, I, Out3]): Ms[update.Out, update2.Out, Out3] =
+    this.copy(update(ms.head) :: update2(ms.tail.head) :: update3(ms.tail.tail))
 
-  def run[E[_]: EvalCap](implicit decomposer: ops.Decomposer[MS, E]): decomposer.Out = decomposer(ms)
+  def run[E[_]: EvalCap](implicit decomposer: Decomposer[MS, E]): decomposer.Out = decomposer(ms)
 }

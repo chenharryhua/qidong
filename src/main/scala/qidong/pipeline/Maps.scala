@@ -1,12 +1,12 @@
 package qidong.pipeline
-import shapeless.{ HNil, ::, HList }
-import shapeless.ops.hlist.{ IsHCons, Last }
 import scalaz.Functor
+import shapeless.::
+import shapeless.DepFn2
+import shapeless.HList
+import shapeless.HNil
+import shapeless.ops.hlist.IsHCons
 
-trait MapFst[MM, I0, I] {
-  type Out
-  def apply(mm: MM, f: I0 => I): Out
-}
+trait MapFst[MM, I0, I] extends DepFn2[MM, I0 => I] with Serializable
 
 object MapFst {
   type Aux[MM, I0, I, Out0] = MapFst[MM, I0, I] { type Out = Out0 }
@@ -34,9 +34,8 @@ object MapFst {
     }
 }
 
-trait MapSnd[MM <: HList, O, O2] {
-  type Out <: HList
-  def apply(mm: MM, f: O => O2): Out
+trait MapSnd[MM <: HList, O, O2] extends DepFn2[MM, O => O2] with Serializable {
+  override type Out <: HList
 }
 
 object MapSnd {
@@ -48,47 +47,18 @@ object MapSnd {
       def apply(mm: M[F, I, O] :: HNil, f: O => O2): Out = mm.head.mapsnd(f) :: HNil
     }
 
-  implicit def ms[M1, M2, MT <: HList, O, O2, Out0 <: HList](
+  implicit def ms[M1, M2, MT <: HList, O, O2, H, T <: HList, Out0 <: HList](
     implicit mapSnd: MapSnd.Aux[M2 :: MT, O, O2, Out0],
-    hc: IsHCons[Out0]) =
+    hc: IsHCons.Aux[Out0, H, T]) =
     new MapSnd[Ms[M1, M2, MT] :: HNil, O, O2] {
-      type Out = Ms[M1, hc.H, hc.T] :: HNil
-      def apply(mm: Ms[M1, M2, MT] :: HNil, f: O => O2) = mm.head.mapsnd(f) :: HNil // ??? // mm.head.copy(mapSnd(mm.head.ms.tail.tail, f)) :: HNil
+      type Out = Ms[M1, H, T] :: HNil
+      def apply(mm: Ms[M1, M2, MT] :: HNil, f: O => O2) = mm.head.mapsnd(f) :: HNil
     }
 
-  implicit def coinductively[MM, ML <: HList, O, O2](
-    implicit mapSnd: MapSnd[ML, O, O2]) =
+  implicit def coinductively[MM, ML <: HList, O, O2, Out0 <: HList](
+    implicit mapSnd: MapSnd.Aux[ML, O, O2, Out0]) =
     new MapSnd[MM :: ML, O, O2] {
-      type Out = MM :: mapSnd.Out
+      type Out = MM :: Out0
       def apply(mm: MM :: ML, f: O => O2): Out = mm.head :: mapSnd(mm.tail, f)
     }
 }
-
-//trait Keeping[MM, I] {
-//  type Out <: HList
-//  def apply(mm: MM, i0: I): Out
-//}
-//
-//object Keeping {
-//  type Aux[MM <: HList, I, Out0] = Keeping[MM, I] { type Out = Out0 }
-//
-//  implicit def m[F[_], I, O, I0](implicit F: Functor[F]) =
-//    new Keeping[M[F, I, O] :: HNil, I0] {
-//      type Out = M[F, I, (I0, O)] :: HNil
-//      def apply(mm: M[F, I, O] :: HNil, i0: I0): Out =
-//        mm.head.copy(fn = (i: I) => F.map(mm.head.fn(i))((i0, _))) :: HNil
-//    }
-//
-//  implicit def ms[MS <: HList, I](implicit keeping: Keeping[MS, I]) =
-//    new Keeping[Ms[MS] :: HNil, I] {
-//      type Out = Ms[keeping.Out] :: HNil
-//      def apply(mm: Ms[MS] :: HNil, f: I): Out = mm.head.copy(keeping(mm.head.ms, f)) :: HNil
-//    }
-//
-//  implicit def coinductively[MM, ML <: HList, I](
-//    implicit keeping: Keeping[ML, I]) =
-//    new Keeping[MM :: ML, I] {
-//      type Out = MM :: keeping.Out
-//      def apply(mm: MM :: ML, f: I): Out = mm.head :: keeping(mm.tail, f)
-//    }
-//}

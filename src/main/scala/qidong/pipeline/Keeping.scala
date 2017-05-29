@@ -1,49 +1,79 @@
 package qidong.pipeline
 
-import shapeless.{ HNil, ::, HList }
-import shapeless.ops.hlist.{ IsHCons, Last }
 import scalaz.Functor
+import shapeless.::
+import shapeless.HList
+import shapeless.HNil
+import shapeless.DepFn1
 
-trait Keeping[MM, I] {
-  type Out <: HList
-  def apply(mm: MM): Out
+trait KeepRest[MM, I] extends DepFn1[MM] with Serializable
+
+trait LowerPriorityUpdateFn {
+
+  type Aux[MM, I, Out0] = KeepRest[MM, I] { type Out = Out0 }
+
+  implicit def coinductively[MM, ML <: HList, I, Out0 <: HList](
+    implicit keepH: KeepRest[MM, I],
+    keepT: KeepRest.Aux[ML, I, Out0]) =
+    new KeepRest[MM :: ML, I] {
+      type Out = keepH.Out :: Out0
+      def apply(mm: MM :: ML): Out = keepH(mm.head) :: keepT(mm.tail)
+    }
+
 }
+object KeepRest extends LowerPriorityUpdateFn {
 
-object Keeping {
-  type Aux[MM <: HList, I, Out0 <: HList] = Keeping[MM, I] { type Out = Out0 }
-
-  implicit def nil[I] = new Keeping[HNil, I] {
+  implicit def nil[I] = new KeepRest[HNil, I] {
     type Out = HNil
-    def apply(m: HNil) = HNil
+    def apply(m: HNil): Out = HNil
   }
 
   implicit def m[F[_], I, O, I0](implicit F: Functor[F]) =
-    new Keeping[M[F, I, O] :: HNil, I0] {
+    new KeepRest[M[F, I, O] :: HNil, I0] {
       type Out = M[F, (I0, I), (I0, O)] :: HNil
       def apply(mm: M[F, I, O] :: HNil): Out =
         mm.head.replicateInput[I0] :: HNil
     }
+
   implicit def singleM[F[_], I, O, I0](implicit F: Functor[F]) =
-    new Keeping[M[F, I, O], I0] {
-      type Out = M[F, (I0, I), (I0, O)] :: HNil
+    new KeepRest[M[F, I, O], I0] {
+      type Out = M[F, (I0, I), (I0, O)]
       def apply(mm: M[F, I, O]): Out =
-        mm.replicateInput[I0] :: HNil
+        mm.replicateInput[I0]
     }
 
-  implicit def ms[M1, M2, MT <: HList, I](
-    implicit k1: Keeping[M1, I],
-    k2: Keeping[M2, I],
-    kn: Keeping[MT, I]) =
-    new Keeping[Ms[M1, M2, MT], I] {
-      type Out = Ms[k1.Out, k2.Out, kn.Out] :: HNil
-      def apply(mm: Ms[M1, M2, MT]): Out = mm.copy(k1(mm.ms.head) :: k2(mm.ms.tail.head) :: kn(mm.ms.tail.tail)) :: HNil
+  implicit def ms[M1, M2, MT <: HList, I, Out3 <: HList](
+    implicit dup1: KeepRest[M1, I],
+    dup2: KeepRest[M2, I],
+    dup3: KeepRest.Aux[MT, I, Out3]) =
+    new KeepRest[Ms[M1, M2, MT], I] {
+      type Out = Ms[dup1.Out, dup2.Out, Out3]
+      def apply(mm: Ms[M1, M2, MT]): Out =
+        mm.copy(dup1(mm.ms.head) :: dup2(mm.ms.tail.head) :: dup3(mm.ms.tail.tail))
+    }
+}
+
+trait KeepHead[MM] extends DepFn1[MM] with Serializable
+
+object KeepHead {
+
+  type Aux[MM, Out0] = KeepHead[MM] { type Out = Out0 }
+
+  implicit def m[F[_], I, O](
+    implicit F: Functor[F]) =
+    new KeepHead[M[F, I, O]] {
+      type Out = M[F, I, (I, O)]
+      def apply(mm: M[F, I, O]) = mm.keep
     }
 
-  implicit def coinductively[MM, ML <: HList, I](
-    implicit keepingH: Keeping[MM, I],
-    keepingT: Keeping[ML, I]) =
-    new Keeping[MM :: ML, I] {
-      type Out = keepingH.Out :: keepingT.Out
-      def apply(mm: MM :: ML): Out = keepingH(mm.head) :: keepingT(mm.tail)
+  implicit def ms[M1, M2, MT <: HList, F[_], I, O, Out0 <: HList](
+    implicit headOf: HeadOf[M1 :: M2 :: MT, F, I, O],
+    update: KeepHead[M1],
+    dup2: KeepRest[M2, I],
+    dup3: KeepRest.Aux[MT, I, Out0]) =
+    new KeepHead[Ms[M1, M2, MT]] {
+      type Out = Ms[update.Out, dup2.Out, Out0]
+      def apply(mm: Ms[M1, M2, MT]) =
+        mm.copy(update(mm.ms.head) :: dup2(mm.ms.tail.head) :: dup3(mm.ms.tail.tail))
     }
 }

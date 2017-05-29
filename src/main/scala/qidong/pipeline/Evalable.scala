@@ -1,4 +1,6 @@
 package qidong.pipeline
+import java.util.concurrent.TimeUnit
+
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.concurrent.duration.Duration
@@ -8,16 +10,14 @@ import scala.util.Try
 
 import monix.eval.Callback
 import monix.eval.{ Task => MTask }
-import monix.execution.Cancelable
 import scalaz.-\/
 import scalaz.Catchable
 import scalaz.Monad
+import scalaz.Need
 import scalaz.Scalaz.ToEitherOps
 import scalaz.\/
 import scalaz.\/-
-import scalaz.Need
 import scalaz.concurrent.{ Task => STask }
-import java.util.concurrent.TimeUnit
 
 trait EvalCap[Env[_]] extends Monad[Env] with Catchable[Env] {
   //    def postpone[A](fa: Env[A])(duration: Duration): Env[A]

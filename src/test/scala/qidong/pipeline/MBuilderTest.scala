@@ -56,7 +56,7 @@ class MBuilderTest extends FunSuite {
     val m2 = (s: String) => 1
     val m3 = (s: String) => 1
     val ms = m1 =>: m2
-    //   illTyped("""m1 =>: m2 =>: m3""")
+    illTyped("""m1 =>: m2 =>: m3""")
   }
 
 }

@@ -1,8 +1,9 @@
 package qidong.pipeline
 
-import shapeless.{ HNil, ::, HList }
-import shapeless.ops.hlist.{ IsHCons, Last }
-import scalaz.Functor
+import shapeless.::
+import shapeless.HList
+import shapeless.HNil
+import shapeless.ops.hlist.Last
 
 trait HeadOf[MM, F[_], I, O] {
   def apply(mm: MM): M[F, I, O]

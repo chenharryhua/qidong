@@ -1,10 +1,21 @@
 package qidong.pipeline
 import scalaz.\/
+import org.joda.time.DateTime
 
-trait MState
+sealed abstract class MState(val name: String, val start: DateTime)
+sealed abstract class MCompleteState(override val name: String,
+                                     override val start: DateTime,
+                                     val endat: DateTime) extends MState(name, start)
 
-final case class MFailed[E[_], O](name: String,
-                                  resume: () => E[\/[MFailed[E, O], O]],
-                                  ex: Throwable) extends MState
-final case class MSucc(name: String) extends MState
-final case class MRunning(name: String) extends MState
+final case class MFailure[E[_], O](override val name: String,
+                                   resume: () => E[\/[MFailure[E, O], O]],
+                                   ex: Throwable,
+                                   override val start: DateTime,
+                                   override val endat: DateTime) extends MCompleteState(name, start, endat)
+
+final case class MSuccess(override val name: String,
+                          override val start: DateTime,
+                          override val endat: DateTime) extends MCompleteState(name, start, endat)
+
+final case class MRunning(override val name: String,
+                          override val start: DateTime) extends MState(name, start)
