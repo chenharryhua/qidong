@@ -5,11 +5,12 @@ import java.util.UUID
 import scalaz.Functor
 import scalaz.Profunctor
 import scalaz.Scalaz.ToFunctorOps
-import scalaz.\/
+import scalaz.{ -\/, \/-, \/ }
 import shapeless.::
 import shapeless.HList
 import shapeless.ops.hlist.IsHCons
-import org.joda.time.DateTime
+import java.time.LocalDateTime
+import scalaz.Tree.Node
 
 sealed abstract class MMs {
   def name(str: String): MMs
@@ -39,11 +40,8 @@ final case class M[F[_], I, O](fn: I => F[O],
 
   def keep(implicit F: Functor[F]): M[F, I, (I, O)] = this.copy(fn = (i: I) => F.map(this.fn(i))(o => (i, o)))
 
-  def run[E[_]](i: I)(implicit env: EvalCap[E], trans: Evalable[F, O]): E[\/[MFailure[E, O], O]] = {
-    val start = DateTime.now
-    val cur = env.attempt(trans.transform(fn(i)))
-    env.map(cur)(_.leftMap(x => MFailure(this.name, () => this.run[E](i), x, start, DateTime.now)))
-  }
+  def run[E[_]](implicit decomposer: Decomposer.Aux[M[F, I, O], E, Decomposer.Ret[E, I, O]]): Decomposer.Ret[E, I, O] =
+    decomposer(this, Node(MRoot, Stream()))
 }
 
 object M {
@@ -61,14 +59,12 @@ object M {
 final case class Ms[M1, M2, MT <: HList](ms: M1 :: M2 :: MT,
                                          uuid: UUID = UUID.randomUUID(),
                                          private val cname: Option[String] = None,
-                                         val stateUpdate: Option[MState => Unit] = None,
-                                         val resumeFromGroupStart: Boolean = false) extends MMs {
+                                         private val stateUpdate: Option[MState => Unit] = None) extends MMs {
   type MS = M1 :: M2 :: MT
   override def name(name: String): Ms[M1, M2, MT] = this.copy(cname = Some(name))
 
   override def name: String = cname.getOrElse(uuid.toString)
   override def stateUpdate(f: MState => Unit): Ms[M1, M2, MT] = this.copy(stateUpdate = Some(f))
-  def resumeFromGroupBegin = this.copy(resumeFromGroupStart = true)
 
   final def headM[F[_], I, O](implicit headOf: HeadOf[MS, F, I, O]): M[F, I, O] = headOf(ms)
   final def lastM[F[_], I, O](implicit lastOf: LastOf[MS, F, I, O]): M[F, I, O] = lastOf(ms)
@@ -90,5 +86,5 @@ final case class Ms[M1, M2, MT <: HList](ms: M1 :: M2 :: MT,
     update3: KeepRest.Aux[MT, I, Out3]): Ms[update.Out, update2.Out, Out3] =
     this.copy(update(ms.head) :: update2(ms.tail.head) :: update3(ms.tail.tail))
 
-  def run[E[_]: EvalCap](implicit decomposer: Decomposer[MS, E]): decomposer.Out = decomposer(ms)
+  def run[E[_]: EvalCap](implicit decomposer: Decomposer[M1 :: M2 :: MT, E]) = decomposer(ms, Node(MRoot, Stream()))
 }

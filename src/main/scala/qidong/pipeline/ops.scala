@@ -42,6 +42,6 @@ object ops {
     final def tree(implicit callgraph: CallGraph[M2]): Tree[String] = callgraph(m2, Node("root", Stream()))
     final def drawTree(implicit callgraph: CallGraph[M2]): String = callgraph(m2, Node("root", Stream())).drawTree
 
-    final def run[E[_]: EvalCap](implicit decomposer: Decomposer[M2, E]): decomposer.Out = decomposer(m2)
+    final def run[E[_]: EvalCap](implicit decomposer: Decomposer[M2, E]): decomposer.Out = decomposer(m2, Node(MRoot, Stream()))
   }
 }
