@@ -6,6 +6,8 @@ import scalaz.Scalaz.stringInstance
 import shapeless.::
 import shapeless.HList
 import shapeless.ops.hlist.IsHCons
+import scalaz._
+import Scalaz._
 
 object ops {
 
@@ -42,6 +44,12 @@ object ops {
     final def tree(implicit callgraph: CallGraph[M2]): Tree[String] = callgraph(m2, Node("root", Stream()))
     final def drawTree(implicit callgraph: CallGraph[M2]): String = callgraph(m2, Node("root", Stream())).drawTree
 
-    final def run[E[_]: EvalCap](implicit decomposer: Decomposer[M2, E]): decomposer.Out = decomposer(m2, Node(MRoot, Stream()))
+    final class EvalMsHelper[E[_]] {
+      def apply[I](i: I)(implicit env: EvalCap[E], decomposer: eval.Decomposer[M2, E, I]): decomposer.Out = {
+        val zero = env.point(eval.WithTrace(Node(MRoot, Stream()), i).right[eval.MFailure[E, eval.WithTrace[I]]])
+        decomposer(m2, zero)
+      }
+    }
+    final def run[E[_]]: EvalMsHelper[E] = new EvalMsHelper[E]
   }
 }

@@ -15,17 +15,17 @@ import scalaz.Tree.Node
 sealed abstract class MMs {
   def name(str: String): MMs
   def name: String
-  def stateUpdate(f: MState => Unit): MMs
+  def stateUpdate(f: Unit => Unit): MMs
   def uuid: UUID
 }
 
 final case class M[F[_], I, O](fn: I => F[O],
                                uuid: UUID = UUID.randomUUID(),
                                private val cname: Option[String] = None,
-                               private val stateUpdate: Option[MState => Unit] = None) extends MMs {
+                               private val stateUpdate: Option[Unit => Unit] = None) extends MMs {
   override def name(name: String): M[F, I, O] = this.copy(cname = Some(name))
   override def name: String = cname.getOrElse(uuid.toString)
-  override def stateUpdate(f: MState => Unit): M[F, I, O] = this.copy(stateUpdate = Some(f))
+  override def stateUpdate(f: Unit => Unit): M[F, I, O] = this.copy(stateUpdate = Some(f))
 
   def map[B](f: O => B)(implicit F: Functor[F]): M[F, I, B] = this.copy(fn = (x: I) => this.fn(x).map(f))
   def mapfst[C](f: C => I)(implicit F: Functor[F]): M[F, C, O] = this.copy(fn = (x: C) => this.fn(f(x)))
@@ -40,8 +40,8 @@ final case class M[F[_], I, O](fn: I => F[O],
 
   def keep(implicit F: Functor[F]): M[F, I, (I, O)] = this.copy(fn = (i: I) => F.map(this.fn(i))(o => (i, o)))
 
-  def run[E[_]](implicit decomposer: Decomposer.Aux[M[F, I, O], E, Decomposer.Ret[E, I, O]]): Decomposer.Ret[E, I, O] =
-    decomposer(this, Node(MRoot, Stream()))
+  //  def run[E[_]](implicit decomposer: Decomposer.Aux[M[F, I, O], E, Decomposer.Ret[E, I, O]]): Decomposer.Ret[E, I, O] =
+  //    decomposer(this, Node(MRoot, Stream()))
 }
 
 object M {
@@ -59,12 +59,12 @@ object M {
 final case class Ms[M1, M2, MT <: HList](ms: M1 :: M2 :: MT,
                                          uuid: UUID = UUID.randomUUID(),
                                          private val cname: Option[String] = None,
-                                         private val stateUpdate: Option[MState => Unit] = None) extends MMs {
+                                         private val stateUpdate: Option[Unit => Unit] = None) extends MMs {
   type MS = M1 :: M2 :: MT
   override def name(name: String): Ms[M1, M2, MT] = this.copy(cname = Some(name))
 
   override def name: String = cname.getOrElse(uuid.toString)
-  override def stateUpdate(f: MState => Unit): Ms[M1, M2, MT] = this.copy(stateUpdate = Some(f))
+  override def stateUpdate(f: Unit => Unit): Ms[M1, M2, MT] = this.copy(stateUpdate = Some(f))
 
   final def headM[F[_], I, O](implicit headOf: HeadOf[MS, F, I, O]): M[F, I, O] = headOf(ms)
   final def lastM[F[_], I, O](implicit lastOf: LastOf[MS, F, I, O]): M[F, I, O] = lastOf(ms)
@@ -86,5 +86,5 @@ final case class Ms[M1, M2, MT <: HList](ms: M1 :: M2 :: MT,
     update3: KeepRest.Aux[MT, I, Out3]): Ms[update.Out, update2.Out, Out3] =
     this.copy(update(ms.head) :: update2(ms.tail.head) :: update3(ms.tail.tail))
 
-  def run[E[_]: EvalCap](implicit decomposer: Decomposer[M1 :: M2 :: MT, E]) = decomposer(ms, Node(MRoot, Stream()))
+  //  def run[E[_]: EvalCap](implicit decomposer: Decomposer[M1 :: M2 :: MT, E]) = decomposer(ms, Node(MRoot, Stream()))
 }
