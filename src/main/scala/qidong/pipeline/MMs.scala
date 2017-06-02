@@ -1,16 +1,29 @@
+/*
+ * Copyright 2017 Chen Hua (Harry)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package qidong.pipeline
 
 import java.util.UUID
 
-import scalaz.Functor
-import scalaz.Profunctor
+import scalaz.{ Profunctor, Functor, -\/, \/-, \/ }
+import scalaz.Tree.Node
 import scalaz.Scalaz.ToFunctorOps
-import scalaz.{ -\/, \/-, \/ }
-import shapeless.::
-import shapeless.HList
+import shapeless.{ ::, HList }
 import shapeless.ops.hlist.IsHCons
 import java.time.LocalDateTime
-import scalaz.Tree.Node
 
 sealed abstract class MMs {
   def name(str: String): MMs
@@ -22,14 +35,18 @@ sealed abstract class MMs {
 final case class M[F[_], I, O](fn: I => F[O],
                                uuid: UUID = UUID.randomUUID(),
                                private val cname: Option[String] = None,
-                               private val stateUpdate: Option[Unit => Unit] = None) extends MMs {
+                               private val stateUpdate: Option[Unit => Unit] = None)
+    extends MMs {
   override def name(name: String): M[F, I, O] = this.copy(cname = Some(name))
   override def name: String = cname.getOrElse(uuid.toString)
   override def stateUpdate(f: Unit => Unit): M[F, I, O] = this.copy(stateUpdate = Some(f))
 
-  def map[B](f: O => B)(implicit F: Functor[F]): M[F, I, B] = this.copy(fn = (x: I) => this.fn(x).map(f))
-  def mapfst[C](f: C => I)(implicit F: Functor[F]): M[F, C, O] = this.copy(fn = (x: C) => this.fn(f(x)))
-  def mapsnd[C](f: O => C)(implicit F: Functor[F]): M[F, I, C] = this.copy(fn = (x: I) => this.fn(x).map(f))
+  def map[B](f: O => B)(implicit F: Functor[F]): M[F, I, B] =
+    this.copy(fn = (x: I) => this.fn(x).map(f))
+  def mapfst[C](f: C => I)(implicit F: Functor[F]): M[F, C, O] =
+    this.copy(fn = (x: C) => this.fn(f(x)))
+  def mapsnd[C](f: O => C)(implicit F: Functor[F]): M[F, I, C] =
+    this.copy(fn = (x: I) => this.fn(x).map(f))
 
   def replicateInput[I0](implicit F: Functor[F]): M[F, (I0, I), (I0, O)] = {
     def fn0(i0: I0, i: I) = this.fn(i).map(o => (i0, o))

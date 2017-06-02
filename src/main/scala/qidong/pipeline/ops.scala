@@ -1,13 +1,25 @@
+/*
+ * Copyright 2017 Chen Hua (Harry)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package qidong.pipeline
+import scalaz.Scalaz.{ stringInstance, ToEitherOps }
 import scalaz.Tree
 import scalaz.Tree.Node
-import scalaz.Scalaz.stringInstance
-
-import shapeless.::
-import shapeless.HList
+import shapeless.{ HList, :: }
 import shapeless.ops.hlist.IsHCons
-import scalaz._
-import Scalaz._
 
 object ops {
 
@@ -46,7 +58,7 @@ object ops {
 
     final class EvalMsHelper[E[_]] {
       def apply[I](i: I)(implicit env: EvalCap[E], decomposer: eval.Decomposer[M2, E, I]): decomposer.Out = {
-        val zero = env.point(eval.WithTrace(Node(MRoot, Stream()), i).right[eval.MFailure[E, eval.WithTrace[I]]])
+        val zero = env.point(eval.MSuccess(Node(MRoot, Stream()), i).right[eval.MFailure[E, eval.MSuccess[I]]])
         decomposer(m2, zero)
       }
     }

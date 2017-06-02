@@ -11,6 +11,7 @@ class MapFstTest extends FunSuite {
     illTyped("""m1 =>: m2""")
     val ms = m1 =>: m2.mapfst((s: String) => s.toInt + 1)
     val ms2 = m1.mapsnd(_.toInt) =>: m2
+    val ms3 = m1.map(_.toInt) =>: m2
     assert(ms.drawTree == ms2.drawTree)
   }
   test("group mapfst") {

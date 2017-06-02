@@ -36,7 +36,7 @@ class ResumeTest extends FunSuite {
     val \/-(resumed) = ret.resume().unsafePerformSync
     assert(m1called == 1)
     assert(ret.name == "rm2")
-    assert(resumed.ioData == 4)
+    assert(resumed.data == 4)
     println(ret.trace.drawTree)
     println(resumed.trace.drawTree)
   }
@@ -56,7 +56,7 @@ class ResumeTest extends FunSuite {
     val \/-(resumed) = ret.resume().unsafePerformSync
     assert(m1called == 1)
     assert(ret.name == "rm2")
-    assert(resumed.ioData == 4)
+    assert(resumed.data == 4)
     println(ret.trace.drawTree)
     println(resumed.trace.drawTree)
   }

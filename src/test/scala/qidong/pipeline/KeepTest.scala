@@ -31,6 +31,16 @@ class KeepTest extends FunSuite {
     val g2 = m1 =>: (m1 =>: msg1 =>: m1).name("g2").keep
     val g3 = (m1 =>: (m1 =>: (m1 =>: g1.keep).mapsnd { (i: (Int, Int)) => i._1 } =>: m1).name("g2").keep).keep
     assert(g2.drawTree == g3.drawTree)
+  }
 
+  test("keep m") {
+    val m1 = (i: Int) => i
+    val m2 = (i: Int, j: Int) => i + j
+    val ms = m1.keep =>: m2.tupled
+  }
+  test("long distance keep") {
+    val m1 = (i: Int) => i
+    val m2 = (i: Int, j: Int) => i + j
+    val ms = (m1 =>: m1 =>: m1).keep =>: m2.tupled
   }
 }

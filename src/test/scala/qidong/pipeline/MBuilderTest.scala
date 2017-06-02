@@ -6,6 +6,10 @@ import shapeless.test.illTyped
 import shapeless.test.sameTyped
 import shapeless.{ HNil, ::, HList }
 import scalaz.Need
+import scalaz._
+import Scalaz._
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class MBuilderTest extends FunSuite {
   import ops._
@@ -57,6 +61,29 @@ class MBuilderTest extends FunSuite {
     val m3 = (s: String) => 1
     val ms = m1 =>: m2
     illTyped("""m1 =>: m2 =>: m3""")
+  }
+  test("() => A and unit => A can follow any function") {
+    val m1 = () => 1
+    val m2 = (Unit: Unit) => 1
+    val m3 = (i: Int) => i.toString
+    val ms1 = m3 =>: m1
+    val ms2 = m3 =>: m2
+  }
+  test("should be type checked when compose compatiable function") {
+    class A
+    class B extends A
+    class C extends B
+
+    val f1 = () => new C
+    val f2 = (b: B) => new A
+    val fs = f1 =>: f2
+  }
+  test("effectful type should be composable") {
+    val f1 = (i: Int) => Try(i)
+    val f2 = (i: Int) => i.right[Throwable]
+    val f3 = (i: Int) => Future(i)
+    val f4: Int => Either[Throwable, Int] = (i: Int) => Right(i)
+    val ms = f1 =>: f2 =>: f3 =>: f4
   }
 
 }

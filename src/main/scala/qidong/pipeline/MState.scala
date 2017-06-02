@@ -1,44 +1,34 @@
-package qidong.pipeline
-import scalaz.\/
-import scalaz.Tree
-import java.time.LocalDateTime
+/*
+ * Copyright 2017 Chen Hua (Harry)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-//sealed abstract class MState(val name: String, val start: LocalDateTime)
-//
-//sealed abstract class MCompleteState(override val name: String,
-//                                     override val start: LocalDateTime,
-//                                     val endat: LocalDateTime) extends MState(name, start)
-//
-//final case class MFailure[E[_], O](override val name: String,
-//                                   resume: () => E[\/[MFailure[E, O], O]],
-//                                   ex: Throwable,
-//                                   trace: Tree[TraceNode],
-//                                   override val start: LocalDateTime,
-//                                   override val endat: LocalDateTime)
-//    extends MCompleteState(name, start, endat)
-//
-//final case class MSuccess(override val name: String,
-//                          override val start: LocalDateTime,
-//                          override val endat: LocalDateTime)
-//    extends MCompleteState(name, start, endat)
-//
-//final case class MRunning(override val name: String,
-//                          override val start: LocalDateTime)
-//    extends MState(name, start)
+package qidong.pipeline
+import java.time.LocalDateTime
 
 final case class Timing(start: LocalDateTime, endat: LocalDateTime)
 
-sealed abstract class TraceNode(name: String)
+sealed abstract class MTraceNode(name: String)
 
-case object MRoot extends TraceNode("m-root")
-final case class MGroupNode(name: String) extends TraceNode(name)
-final case class MNotRunNode(name: String) extends TraceNode(name)
-final case class MSuccNode(name: String, timing: Timing) extends TraceNode(name)
-final case class MFailNode(name: String, timing: Timing) extends TraceNode(name)
-final case class MResumeNode(name: String, timing: Timing) extends TraceNode(name)
+case object MRoot extends MTraceNode("m-root")
+final case class MGroupNode(name: String) extends MTraceNode(name)
+final case class MNotRunNode(name: String) extends MTraceNode(name)
+final case class MSuccNode(name: String, timing: Timing) extends MTraceNode(name)
+final case class MFailNode(name: String, timing: Timing) extends MTraceNode(name)
 
-object TraceNode {
-  implicit def showStatusTree = new scalaz.Show[TraceNode] {
-    override def shows(f: TraceNode): String = f.toString
+object MTraceNode {
+  implicit def showStatusTree = new scalaz.Show[MTraceNode] {
+    override def shows(f: MTraceNode): String = f.toString
   }
 }

@@ -1,44 +1,52 @@
+/*
+ * Copyright 2017 Chen Hua (Harry)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package qidong.pipeline
 import java.time.LocalDateTime
 
-import scalaz.-\/
-import scalaz.Scalaz.ToEitherOps
-import scalaz.Scalaz.ToFunctorOps
-import scalaz.Tree
-import scalaz.Tree.Leaf
-import scalaz.Tree.Node
-import scalaz.\/
-import scalaz.\/-
-import scalaz.Monoid
-import shapeless.::
-import shapeless.DepFn2
-import shapeless.HList
-import shapeless.HNil
+import scalaz.{ \/, \/-, -\/ }
+import scalaz.Scalaz.{ ToFunctorOps, ToEitherOps }
+import scalaz.{ Monoid, Tree }
+import scalaz.Tree.{ Node, Leaf }
+import shapeless.{ HList, HNil, ::, DepFn2 }
 
 object eval {
 
-  final case class WithTrace[IO](trace: Tree[TraceNode], ioData: IO) {
-    def merge(other: Tree[TraceNode]): WithTrace[IO] =
+  final case class MSuccess[IO](trace: Tree[MTraceNode], data: IO) {
+    def merge(other: Tree[MTraceNode]): MSuccess[IO] =
       this.copy(trace = Node(other.rootLabel, other.subForest :+ trace))
-    def change(other: Tree[TraceNode]): WithTrace[IO] =
+    def change(other: Tree[MTraceNode]): MSuccess[IO] =
       this.copy(trace = other)
-    def leafNode(other: TraceNode) = Node(trace.rootLabel, trace.subForest :+ Leaf(other))
+    def leafNode(other: MTraceNode) = Node(trace.rootLabel, trace.subForest :+ Leaf(other))
   }
 
   final case class MFailure[E[_], O](name: String,
                                      resume: () => E[\/[MFailure[E, O], O]],
                                      ex: Throwable,
-                                     trace: Tree[TraceNode],
+                                     trace: Tree[MTraceNode],
                                      timing: Timing) {
-    def change(other: Tree[TraceNode]): MFailure[E, O] =
+    def change(other: Tree[MTraceNode]): MFailure[E, O] =
       this.copy(trace = other)
-    def merge(other: Tree[TraceNode]): MFailure[E, O] =
+    def merge(other: Tree[MTraceNode]): MFailure[E, O] =
       this.copy(trace = Node(other.rootLabel, other.subForest :+ trace))
-    def update[O1](cont: () => E[\/[MFailure[E, O1], O1]], node: TraceNode): MFailure[E, O1] =
+    def update[O1](cont: () => E[\/[MFailure[E, O1], O1]], node: MTraceNode): MFailure[E, O1] =
       this.copy(resume = cont, trace = Node(trace.rootLabel, trace.subForest :+ Leaf(node)))
   }
 
-  type Compu[E[_], IO] = E[\/[MFailure[E, WithTrace[IO]], WithTrace[IO]]]
+  type Compu[E[_], IO] = E[\/[MFailure[E, MSuccess[IO]], MSuccess[IO]]]
 
   trait Decomposer[MM, E[_], I] extends DepFn2[MM, Compu[E, I]] with Serializable
 
@@ -54,20 +62,25 @@ object eval {
         override def apply(m: M[F, I2, O2], pre: Compu[E, O1]): Compu[E, O2] = {
           env.bind(pre) {
             case -\/(e) =>
-              val fail = e.update(() => this.apply(m, e.resume()), MNotRunNode(e.name))
+              val fail = e.update(() => this.apply(m, e.resume()), MNotRunNode(m.name))
               env.point(fail.left)
             case \/-(o1) =>
               val start = LocalDateTime.now
-              val cache: Compu[E, O1] = env.point(o1.right[MFailure[E, WithTrace[O1]]])
-              env.attempt(trans.transform(m.fn(ev(o1.ioData))))
+              val cache: Compu[E, O1] = env.point(o1.right[MFailure[E, MSuccess[O1]]])
+              env.attempt(trans.transform(m.fn(ev(o1.data))))
                 .map {
                   case -\/(e1) =>
                     val fnode = MFailNode(m.name, Timing(start, LocalDateTime.now))
-                    val fail = MFailure(m.name, () => this.apply(m, cache), e1, o1.leafNode(fnode), Timing(start, LocalDateTime.now))
+                    val fail =
+                      MFailure(name = m.name,
+                        resume = () => this.apply(m, cache),
+                        ex = e1,
+                        trace = o1.leafNode(fnode),
+                        timing = Timing(start, LocalDateTime.now))
                     fail.left
                   case \/-(r1) =>
                     val snode = MSuccNode(m.name, Timing(start, LocalDateTime.now))
-                    WithTrace(o1.leafNode(snode), r1).right
+                    MSuccess(o1.leafNode(snode), r1).right
                 }
           }
         }
@@ -80,7 +93,7 @@ object eval {
         override type Out = Compu[E, O]
         override def apply(mm: Ms[M1, M2, MT], parent: Compu[E, I]): Out =
           {
-            val node = Node(MGroupNode(mm.name): TraceNode, Stream())
+            val node = Node(MGroupNode(mm.name): MTraceNode, Stream())
             env.bind(parent) {
               case -\/(e) =>
                 env.map(eval(mm.ms, env.point(e.change(node).left))) {
