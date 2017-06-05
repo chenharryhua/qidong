@@ -33,14 +33,20 @@ class KeepTest extends FunSuite {
     assert(g2.drawTree == g3.drawTree)
   }
 
-  test("keep m") {
+  test("keep m should duplicate the input of the mission") {
     val m1 = (i: Int) => i
     val m2 = (i: Int, j: Int) => i + j
     val ms = m1.keep =>: m2.tupled
   }
-  test("long distance keep") {
+  test("long distance keep should duplicate the input of the first mission in the expression ") {
     val m1 = (i: Int) => i
     val m2 = (i: Int, j: Int) => i + j
     val ms = (m1 =>: m1 =>: m1).keep =>: m2.tupled
   }
+
+  test("keep input and output of the first m1 should duplicate the input and output of the mission") {
+    val m1 = (i: Int) => i
+    val m2 = (i: (Int,(Int,Int))) => i._1 + i._2._1 + i._2._2
+    val ms = (m1 =>: (m1 =>: m1).keep).keep =>: m2
+  } 
 }

@@ -19,13 +19,15 @@ import java.time.LocalDateTime
 
 final case class Timing(start: LocalDateTime, endat: LocalDateTime)
 
-sealed abstract class MTraceNode(name: String)
+sealed abstract class MTraceNode(val name: String)
 
-case object MRoot extends MTraceNode("m-root")
-final case class MGroupNode(name: String) extends MTraceNode(name)
-final case class MNotRunNode(name: String) extends MTraceNode(name)
-final case class MSuccNode(name: String, timing: Timing) extends MTraceNode(name)
-final case class MFailNode(name: String, timing: Timing) extends MTraceNode(name)
+sealed trait MCompleted { def name: String }
+
+case object MRoot extends MTraceNode("root")
+final case class MGroupNode(override val name: String) extends MTraceNode(name)
+final case class MNotRunNode(override val name: String) extends MTraceNode(name)
+final case class MSuccNode(override val name: String, timing: Timing) extends MTraceNode(name) with MCompleted
+final case class MFailNode(override val name: String, ex: Throwable, timing: Timing) extends MTraceNode(name) with MCompleted
 
 object MTraceNode {
   implicit def showStatusTree = new scalaz.Show[MTraceNode] {

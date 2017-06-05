@@ -5,7 +5,7 @@ import shapeless.test.illTyped
 
 class MapFstTest extends FunSuite {
   import ops._
-  test("mapfst") {
+  test("mapfst should adjust the parameter type") {
     val m1 = ((i: Int) => "a").name("m1")
     val m2 = ((i: Int) => 1).name("m2")
     illTyped("""m1 =>: m2""")
@@ -14,7 +14,7 @@ class MapFstTest extends FunSuite {
     val ms3 = m1.map(_.toInt) =>: m2
     assert(ms.drawTree == ms2.drawTree)
   }
-  test("group mapfst") {
+  test("group mapfst should adjust the parameter type of the group") {
     val m1 = (i: Int) => 1
     val m2 = (i: Int) => 2
     val m3 = (i: Int) => 3

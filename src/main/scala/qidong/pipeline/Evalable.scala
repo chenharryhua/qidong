@@ -75,13 +75,13 @@ object Evalable {
 
   def apply[F[_], A](implicit ev: Evalable[F, A]) = ev
 
-  implicit def optionTrans[A] = new Evalable[Option, A] {
-    override def transform[E[_]](fa: => Option[A])(implicit EC: EvalCap[E]): E[A] =
-      EC.bind(EC.point(fa)) {
-        case None    => EC.fail(new Exception("eval to none"))
-        case Some(x) => EC.point(x)
-      }
-  }
+//  implicit def optionTrans[A] = new Evalable[Option, A] {
+//    override def transform[E[_]](fa: => Option[A])(implicit EC: EvalCap[E]): E[A] =
+//      EC.bind(EC.point(fa)) {
+//        case None    => EC.fail(new Exception("eval to none"))
+//        case Some(x) => EC.point(x)
+//      }
+//  }
 
   implicit def disjunctionTrans[A] = new Evalable[\/[Throwable, ?], A] {
     override def transform[E[_]](fa: => \/[Throwable, A])(implicit EC: EvalCap[E]): E[A] =

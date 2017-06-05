@@ -25,28 +25,28 @@ import shapeless.{ HList, HNil, ::, DepFn2 }
 
 object eval {
 
-  final case class MSuccess[IO](trace: Tree[MTraceNode], data: IO) {
-    def merge(other: Tree[MTraceNode]): MSuccess[IO] =
+  final case class MSuccess[A](trace: Tree[MTraceNode], data: A) {
+    def mergeTrace(other: Tree[MTraceNode]): MSuccess[A] =
       this.copy(trace = Node(other.rootLabel, other.subForest :+ trace))
-    def change(other: Tree[MTraceNode]): MSuccess[IO] =
+    def replaceTrace(other: Tree[MTraceNode]): MSuccess[A] =
       this.copy(trace = other)
-    def leafNode(other: MTraceNode) = Node(trace.rootLabel, trace.subForest :+ Leaf(other))
+    def appendLeafNode(other: MTraceNode) = Node(trace.rootLabel, trace.subForest :+ Leaf(other))
   }
 
-  final case class MFailure[E[_], O](name: String,
-                                     resume: () => E[\/[MFailure[E, O], O]],
+  final case class MFailure[E[_], A](name: String,
+                                     resume: () => E[\/[MFailure[E, A], A]],
                                      ex: Throwable,
                                      trace: Tree[MTraceNode],
                                      timing: Timing) {
-    def change(other: Tree[MTraceNode]): MFailure[E, O] =
+    def replaceTrace(other: Tree[MTraceNode]): MFailure[E, A] =
       this.copy(trace = other)
-    def merge(other: Tree[MTraceNode]): MFailure[E, O] =
+    def mergeTrace(other: Tree[MTraceNode]): MFailure[E, A] =
       this.copy(trace = Node(other.rootLabel, other.subForest :+ trace))
-    def update[O1](cont: () => E[\/[MFailure[E, O1], O1]], node: MTraceNode): MFailure[E, O1] =
-      this.copy(resume = cont, trace = Node(trace.rootLabel, trace.subForest :+ Leaf(node)))
+    def notRun[O1](cont: () => E[\/[MFailure[E, O1], O1]], name: String): MFailure[E, O1] =
+      this.copy(resume = cont, trace = Node(trace.rootLabel, trace.subForest :+ Leaf(MNotRunNode(name): MTraceNode)))
   }
 
-  type Compu[E[_], IO] = E[\/[MFailure[E, MSuccess[IO]], MSuccess[IO]]]
+  type Compu[E[_], A] = E[\/[MFailure[E, MSuccess[A]], MSuccess[A]]]
 
   trait Decomposer[MM, E[_], I] extends DepFn2[MM, Compu[E, I]] with Serializable
 
@@ -62,7 +62,7 @@ object eval {
         override def apply(m: M[F, I2, O2], pre: Compu[E, O1]): Compu[E, O2] = {
           env.bind(pre) {
             case -\/(e) =>
-              val fail = e.update(() => this.apply(m, e.resume()), MNotRunNode(m.name))
+              val fail = e.notRun(() => this.apply(m, e.resume()), m.name)
               env.point(fail.left)
             case \/-(o1) =>
               val start = LocalDateTime.now
@@ -70,17 +70,19 @@ object eval {
               env.attempt(trans.transform(m.fn(ev(o1.data))))
                 .map {
                   case -\/(e1) =>
-                    val fnode = MFailNode(m.name, Timing(start, LocalDateTime.now))
+                    val fnode = MFailNode(m.name, e1, Timing(start, LocalDateTime.now))
                     val fail =
                       MFailure(name = m.name,
                         resume = () => this.apply(m, cache),
                         ex = e1,
-                        trace = o1.leafNode(fnode),
+                        trace = o1.appendLeafNode(fnode),
                         timing = Timing(start, LocalDateTime.now))
+                    m.stateUpdate.foreach(_(fnode))
                     fail.left
                   case \/-(r1) =>
                     val snode = MSuccNode(m.name, Timing(start, LocalDateTime.now))
-                    MSuccess(o1.leafNode(snode), r1).right
+                    m.stateUpdate.foreach(_(snode))
+                    MSuccess(o1.appendLeafNode(snode), r1).right
                 }
           }
         }
@@ -96,14 +98,16 @@ object eval {
             val node = Node(MGroupNode(mm.name): MTraceNode, Stream())
             env.bind(parent) {
               case -\/(e) =>
-                env.map(eval(mm.ms, env.point(e.change(node).left))) {
-                  case -\/(e1) => e1.merge(e.trace).left
-                  case \/-(r1) => r1.merge(e.trace).right
+                env.map(eval(mm.ms, env.point(e.replaceTrace(node).left))) {
+                  case -\/(e1) => e1.mergeTrace(e.trace).left
+                  case \/-(r1) => r1.mergeTrace(e.trace).right
                 }
               case \/-(r) =>
-                env.map(eval(mm.ms, env.point(r.change(node).right))) {
-                  case -\/(e1) => e1.merge(r.trace).left
-                  case \/-(r1) => r1.merge(r.trace).right
+                val cache: Compu[E, I] = env.point(r.right[MFailure[E, MSuccess[I]]])
+                env.map(eval(mm.ms, env.point(r.replaceTrace(node).right))) {
+                  case -\/(e1) =>
+                    e1.mergeTrace(r.trace).copy(resume = () => this.apply(mm, cache)).left
+                  case \/-(r1) => r1.mergeTrace(r.trace).right
                 }
             }
           }

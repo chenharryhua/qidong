@@ -37,7 +37,7 @@ class MBuilderTest extends FunSuite {
     val mms = ms5 =>: ms6
   }
 
-  test("group test") {
+  test("functions should be grouped") {
     val m1 = ((i: Int) => i.toString).name("m1")
     val m2 = ((s: String) => s.toInt).name("m2")
     val ms1 = m1 =>: m2
@@ -55,7 +55,7 @@ class MBuilderTest extends FunSuite {
     sameTyped[::[M[Try, Int, String], ::[M[Try, String, Int], HNil]]](ms3)(ms4)
   }
 
-  test("should not be composed") {
+  test("incompatiable missions should not be composed") {
     val m1 = (i: Int) => "a"
     val m2 = (s: String) => 1
     val m3 = (s: String) => 1
