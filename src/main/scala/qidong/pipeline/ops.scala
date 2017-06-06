@@ -31,17 +31,17 @@ object ops {
 
     final def name(str: String)(implicit naming: Naming[M2]) = naming(m2, str)
 
-    def mapfst[I0, I](f: I0 => I)(
+    final def mapfst[I0, I](f: I0 => I)(
       implicit lc: ListOfCaspers.Aux[M2, M2Out],
       mf: MapFst[M2Out, I0, I]): mf.Out = mf(lc(m2), f)
-    def mapsnd[O, O2](f: O => O2)(
+    final def mapsnd[O, O2](f: O => O2)(
       implicit lc: ListOfCaspers.Aux[M2, M2Out],
       mf: MapSnd[M2Out, O, O2]): mf.Out = mf(lc(m2), f)
-    def map[O, O2](f: O => O2)(
+    final def map[O, O2](f: O => O2)(
       implicit lc: ListOfCaspers.Aux[M2, M2Out],
       mf: MapSnd[M2Out, O, O2]): mf.Out = mapsnd(f)
 
-    def keep[F[_], I, O, H, T <: HList, HOut, TOut <: HList](implicit lc: ListOfCaspers.Aux[M2, M2Out],
+    final def keep[F[_], I, O, H, T <: HList, HOut, TOut <: HList](implicit lc: ListOfCaspers.Aux[M2, M2Out],
                                                              hc: IsHCons.Aux[M2Out, H, T],
                                                              headOf: HeadOf[M2Out, F, I, O],
                                                              uph: KeepHead.Aux[H, HOut],

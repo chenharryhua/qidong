@@ -21,13 +21,21 @@ final case class Timing(start: LocalDateTime, endat: LocalDateTime)
 
 sealed abstract class MTraceNode(val name: String)
 
-sealed trait MCompleted { def name: String }
+sealed trait MCompleted { def name: String; def timing: Timing }
+sealed trait MSuccess extends MCompleted
+sealed trait MFailure extends MCompleted
 
 case object MRoot extends MTraceNode("root")
 final case class MGroupNode(override val name: String) extends MTraceNode(name)
 final case class MNotRunNode(override val name: String) extends MTraceNode(name)
-final case class MSuccNode(override val name: String, timing: Timing) extends MTraceNode(name) with MCompleted
-final case class MFailNode(override val name: String, ex: Throwable, timing: Timing) extends MTraceNode(name) with MCompleted
+
+final case class MFailNode(override val name: String, ex: Throwable, timing: Timing)
+  extends MTraceNode(name) with MFailure
+
+final case class MSuccNode(override val name: String, timing: Timing)
+  extends MTraceNode(name) with MSuccess
+final case class MRecoveredByErrorHandlerNode(override val name: String, ex: Throwable, timing: Timing)
+  extends MTraceNode(name) with MSuccess
 
 object MTraceNode {
   implicit def showStatusTree = new scalaz.Show[MTraceNode] {

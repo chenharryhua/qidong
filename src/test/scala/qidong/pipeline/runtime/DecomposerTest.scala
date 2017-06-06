@@ -13,7 +13,7 @@ class DecomposerTest extends FunSuite {
   val m0 = ((i: Int) => { i + 1 }).name("m0")
   val m1 = ((i: Int) => { i + 1 }).name("m1")
   val m2 = ((i: Int) => { i + 1 }).name("m2")
-  val m3 = ((i: Int) => { throw new Exception("aa"); i + 1 }).name("m3")
+  val m3 = ((i: Int) => { throw new Exception("ooops"); i + 1 }).name("m3")
   val m4 = ((i: Int) => { i + 1 }).name("m4")
   val m5 = ((i: Int) => { i + 1 }).name("m5")
   var flag = 0

@@ -22,6 +22,7 @@ import scalaz.Scalaz.{ ToFunctorOps, ToEitherOps }
 import scalaz.{ Monoid, Tree }
 import scalaz.Tree.{ Node, Leaf }
 import shapeless.{ HList, HNil, ::, DepFn2 }
+import scala.util.Try
 
 object eval {
 
@@ -70,18 +71,32 @@ object eval {
               env.attempt(trans.transform(m.fn(ev(o1.data))))
                 .map {
                   case -\/(e1) =>
-                    val fnode = MFailNode(m.name, e1, Timing(start, LocalDateTime.now))
-                    val fail =
-                      MFailure(name = m.name,
-                        resume = () => this.apply(m, cache),
-                        ex = e1,
-                        trace = o1.appendLeafNode(fnode),
-                        timing = Timing(start, LocalDateTime.now))
-                    m.stateUpdate.foreach(_(fnode))
-                    fail.left
+                    def handleFailure = {
+                      val fnode = MFailNode(m.name, e1, Timing(start, LocalDateTime.now))
+                      val fail =
+                        MFailure(name = m.name,
+                          resume = () => this.apply(m, cache),
+                          ex = e1,
+                          trace = o1.appendLeafNode(fnode),
+                          timing = Timing(start, LocalDateTime.now))
+                      m.stateUpdateHandler.foreach(h => Try(h(fnode)))
+                      m.onFinishHandler.foreach(h => Try(h(o1.data)))
+                      fail.left[MSuccess[O2]]
+                    }
+                    val recover = for {
+                      handler <- m.errorHandler
+                      o2 <- Try(handler(o1.data, e1)).toOption
+                    } yield {
+                      val snode = MRecoveredByErrorHandlerNode(m.name, e1, Timing(start, LocalDateTime.now))
+                      m.stateUpdateHandler.foreach(h => Try(h(snode)))
+                      m.onFinishHandler.foreach(h => Try(h(o1.data)))
+                      MSuccess(o1.appendLeafNode(snode), o2).right[MFailure[E, MSuccess[O2]]]
+                    }
+                    recover.fold(handleFailure)(identity)
                   case \/-(r1) =>
                     val snode = MSuccNode(m.name, Timing(start, LocalDateTime.now))
-                    m.stateUpdate.foreach(_(snode))
+                    m.stateUpdateHandler.foreach(h => Try(h(snode)))
+                    m.onFinishHandler.foreach(h => Try(h(o1.data)))
                     MSuccess(o1.appendLeafNode(snode), r1).right
                 }
           }

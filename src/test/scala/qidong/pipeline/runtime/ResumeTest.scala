@@ -12,7 +12,7 @@ class ResumeTest extends FunSuite {
   var m3called: Int = 0
   val m0 = ((i: Int) => { m0called += 1; i + 1 }).name("m0")
   val m1 = ((i: Int) => { m1called += 1; i + 1 }).name("m1")
-  val m2 = ((i: Int) => { m2called += 1; throw new Exception("haha"); i + 1 }).name("m2")
+  val m2 = ((i: Int) => { m2called += 1; throw new Exception("oops"); i + 1 }).name("m2")
   val m3 = ((i: Int) => { m3called += 1; i + 1 }).name("m3")
 
   test("failed mission should return a continuation") {
