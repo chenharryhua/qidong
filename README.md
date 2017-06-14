@@ -8,7 +8,7 @@ Qidong is a Scala pipeline library which provides generic type safe combinators 
 - call trace
 - state update notification
 - error handling
-- onFinish to clean up
+- onFinish
 
 # Get Start
 
@@ -32,7 +32,7 @@ val fs = f1 =>: f2 =>: f3
 import scalaz.concurrent.Task
 val task = fs.run[Task](0)
 ```
-the return value `task` is a value which has the type of `Task[\/[MFailure[Task, MSuccess[Int]], MSuccess[Int]]]`. it is a recursive type on MSuccess. which can be read as the expression will be evaluated to MSucess[Int] when no failure occurs, will be evaluated to MFailure[Task, MSuccess[Int]] when failure ocurs and if we keep trying (call resume method on it) it will eventually evaluated to MSuccess[Int]. 
+the return value `task` is a value which has the type of `Task[\/[MFailure[Task, MSuccess[Int]], MSuccess[Int]]]`. it is a recursive type on MSuccess. which can be read as the expression will be evaluated to MSucess[Int] when no failure occurs, will be evaluated to MFailure[Task, MSuccess[Int]] when failure ocurs and if we keep trying (call resume method on it) it will eventually evaluated to MSuccess[Int], potentially infinitely. 
 
 To get the result of it, we can call one of Scalaz Task's `unsafe-*` methods:
 ```scala
@@ -231,6 +231,7 @@ internally, Qidong rewrites all the functions in the group.
 
 ## Resume computation
 evaluation failure is resumable.
+
 failed evaluation of an expression will return a `Mfailure` object. which is defined as:
 ```scala
   final case class MFailure[E[_], O](
@@ -240,7 +241,7 @@ failed evaluation of an expression will return a `Mfailure` object. which is def
     trace: Tree[MTraceNode],
     timing: Timing)
 ```
-the `resume` attribute is a continuation which can be used to continue the evaluation from the failure-point. when `resume()` is called on a failed computation, Qidong will re-evaluate the last failed function.
+the `resume` attribute is a continuation which can be used to continue the evaluation from the failure-point. when `resume()` is called on a failed computation, Qidong will re-evaluate the last failed function and if success, going on to the end.
 ```scala
   import qidong.pipeline.ops._
   val m1 = ((i: Int) => { i + 1 }).name("m1")
@@ -269,7 +270,7 @@ Resume does respect to the `resume-boundary` when we set up a function group the
 when resumed, the computation start from `group1`'s start function m1 in this case.
 
 ## Group functions
-we can group a few functions into a logic group and give its a name:
+naming a group:
 ```scala
 val g1 = (m1 =>: m2 =>: m3).name("group1")
 ```
@@ -315,12 +316,12 @@ where, i is the input parameter of m3 and ex is Throwable
 where I is the parameter type and O is the return type of the function
 
 ## State update notification
-State update notification will be fired when a function is completely evaluated. we can setup a listener to get notified:
+State update notification will be fired after a function is completely evaluated. we can setup a listener to get notified:
 ```scala
     val mm = m3.stateUpdate(println)
     val ms = m0 =>: mm =>: m2 =>: m3
 ```
-when complete evaluation of mm will fire an event.
+when complete evaluation of mm an event will be fired.
 `stateUpdate` take a function which has the type:
 ```scala
 MCompleted => Unit

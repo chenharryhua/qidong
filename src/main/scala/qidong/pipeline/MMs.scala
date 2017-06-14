@@ -21,8 +21,8 @@ import java.util.UUID
 import scalaz.{ Profunctor, Functor, -\/, \/-, \/ }
 import scalaz.Tree.Node
 import scalaz.Scalaz.ToFunctorOps
-import shapeless.{ ::, HList }
-import shapeless.ops.hlist.IsHCons
+import shapeless.{ ::, HList, HNil }
+import shapeless.ops.hlist.{ Tupler, IsHCons }
 import java.time.LocalDateTime
 
 final case class M[F[_], I, O](fn: I => F[O],
@@ -57,8 +57,8 @@ final case class M[F[_], I, O](fn: I => F[O],
 
   final def replicateInput[I0](implicit F: Functor[F]): M[F, (I0, I), (I0, O)] = {
     def fn0(i0: I0, i: I) = this.fn(i).map(o => (i0, o))
-    val eh0 = errorHandler.map(h => (i: (I0, I), ex: Throwable) => (i._1, h(i._2, ex)))
-    val of0 = onFinishHandler.map(h => (i: (I0, I)) => h(i._2))
+    def eh0[I0] = errorHandler.map(h => (i: (I0, I), ex: Throwable) => (i._1, h(i._2, ex)))
+    def of0[I0] = onFinishHandler.map(h => (i: (I0, I)) => h(i._2))
     this.copy(fn = (fn0 _).tupled, errorHandler = eh0, onFinishHandler = of0)
   }
 
@@ -94,7 +94,7 @@ final case class Ms[M1, M2, MT <: HList](ms: M1 :: M2 :: MT,
   final def map[O, O2, Out0 <: HList, H, T <: HList](f: O => O2)(
     implicit snd: MapSnd.Aux[M2 :: MT, O, O2, Out0],
     hc: IsHCons.Aux[Out0, H, T]) = this.mapsnd(f)
-  final def mapfst[I0, I](f: I0 => I)(implicit fst: MapFst[M1, I0, I]) = 
+  final def mapfst[I0, I](f: I0 => I)(implicit fst: MapFst[M1, I0, I]) =
     this.copy(fst(ms.head, f) :: ms.tail)
   final def mapsnd[O, O2, Out0 <: HList, H, T <: HList](f: O => O2)(
     implicit snd: MapSnd.Aux[M2 :: MT, O, O2, Out0],
@@ -102,7 +102,6 @@ final case class Ms[M1, M2, MT <: HList](ms: M1 :: M2 :: MT,
     val list = snd(ms.tail, f)
     this.copy(ms.head :: hc.head(list) :: hc.tail(list))
   }
-
   final def keep[F[_], I, O, Out3 <: HList](
     implicit headOf: HeadOf[MS, F, I, O],
     update: KeepHead[M1],

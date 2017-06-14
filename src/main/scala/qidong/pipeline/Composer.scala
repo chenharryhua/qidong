@@ -27,8 +27,8 @@ object Composer {
   implicit def mnil[MM, S <: HList](
     implicit insert: Casper[MM]): Composer.Aux[MM :: HNil, S, insert.Out :: S] =
     new Composer[MM :: HNil, S] {
-      type Out = insert.Out :: S
-      def apply(prefix: MM :: HNil, suffix: S): Out =
+      override type Out = insert.Out :: S
+      override def apply(prefix: MM :: HNil, suffix: S): Out =
         insert(prefix.head) :: suffix
     }
 
@@ -36,8 +36,8 @@ object Composer {
     implicit insert: Casper[MM],
     pt: Composer[PT, S]): Composer.Aux[MM :: PT, S, insert.Out :: pt.Out] =
     new Composer[MM :: PT, S] {
-      type Out = insert.Out :: pt.Out
-      def apply(prefix: MM :: PT, suffix: S): Out =
+      override type Out = insert.Out :: pt.Out
+      override def apply(prefix: MM :: PT, suffix: S): Out =
         insert(prefix.head) :: pt(prefix.tail, suffix)
     }
 }

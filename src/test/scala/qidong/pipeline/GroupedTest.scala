@@ -7,7 +7,7 @@ class GroupedTest extends FunSuite {
   test("should support grouping missions"){
     val ms = intM =>: intEM =>: intDM
     val ms1 = intM =>: (intEM =>: intDM).name("group")
-    val ms2 = (intM =>: intEM).name("group") =>: intDM    
+    val ms2 = (intM =>: intEM).name("group") =>: intDM
   }
   
   test("should support arbitarily nested grouping"){

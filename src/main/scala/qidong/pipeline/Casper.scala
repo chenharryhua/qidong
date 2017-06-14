@@ -66,11 +66,11 @@ trait LowerPriorityList extends Lowerest {
 
 }
 object ListOfCaspers extends LowerPriorityList {
-  implicit def mlist[MM, ML <: HList](
+  implicit def mlist[MM, MT <: HList](
     implicit c: Casper[MM],
-    ct: ListOfCaspers[ML]): Aux[MM :: ML, c.Out :: ct.Out] =
-    new ListOfCaspers[MM :: ML] {
+    ct: ListOfCaspers[MT]): Aux[MM :: MT, c.Out :: ct.Out] =
+    new ListOfCaspers[MM :: MT] {
       override type Out = c.Out :: ct.Out
-      override def apply(mm: MM :: ML): Out = c(mm.head) :: ct(mm.tail)
+      override def apply(mm: MM :: MT): Out = c(mm.head) :: ct(mm.tail)
     }
 }

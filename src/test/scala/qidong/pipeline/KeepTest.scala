@@ -14,8 +14,11 @@ class KeepTest extends FunSuite {
     val m1 = intM.name("m1")
     val m2 = intM.name("m2")
     val m3 = intM.name("m3")
-    val mm1 = m1 =>: m2 =>: m3
-    val mm2 = (m1 =>: (m2 =>: m3).keep).keep
+    val k1 = m1.keep
+    val k2 = m1 =>: (m1 =>: m2).keep
+    val mm1 = m1 =>: m1 =>: m2 =>: m3
+    val mm2 = (m1 =>: (m1 =>: (m2 =>: m3).keep).keep).keep.keep//.map{ o => flatTuple(o)}
+    val mmx = ((m1 =>: m2).keep =>: m3.mapfst((i: (Int, Int)) => i._1)).keep
     assert(mm1.drawTree == mm2.drawTree)
 
     val g1 = (m1 =>: m2 =>: m3).name("g1")
@@ -46,7 +49,7 @@ class KeepTest extends FunSuite {
 
   test("keep input and output of the first m1 should duplicate the input and output of the mission") {
     val m1 = (i: Int) => i
-    val m2 = (i: (Int,(Int,Int))) => i._1 + i._2._1 + i._2._2
+    val m2 = (i: (Int, (Int, Int))) => i._1 + i._2._1 + i._2._2
     val ms = (m1 =>: (m1 =>: m1).keep).keep =>: m2
-  } 
+  }
 }
