@@ -1,8 +1,9 @@
-package qidong.pipeline.runtime
+package qidong.runtime
 
 import org.scalatest.FunSuite
 import scalaz.concurrent.Task
-import scalaz.{ \/, -\/, \/- }
+import scalaz.{ -\/, \/- }
+
 
 class ResumeTest extends FunSuite {
   import qidong.pipeline.ops._

@@ -1,10 +1,11 @@
-package qidong.pipeline
+package qidong.statics
 
 import org.scalatest.FunSuite
 import shapeless.test.illTyped
 
 class MapFstTest extends FunSuite {
-  import ops._
+  import qidong.pipeline.ops._
+  
   test("mapfst should adjust the parameter type") {
     val m1 = ((i: Int) => "a").name("m1")
     val m2 = ((i: Int) => 1).name("m2")

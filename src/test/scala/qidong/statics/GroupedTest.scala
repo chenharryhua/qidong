@@ -1,4 +1,4 @@
-package qidong.pipeline
+package qidong.statics
 import org.scalatest.FunSuite
 class GroupedTest extends FunSuite {
   import qidong.pipeline.ops._

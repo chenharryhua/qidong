@@ -20,9 +20,9 @@ import scalaz.Functor
 import shapeless.{ HList, HNil, DepFn1, :: }
 import shapeless.ops.hlist.{ IsHCons, Tupler }
 
-trait KeepRest[MM, I] extends DepFn1[MM] with Serializable
+private[pipeline] trait KeepRest[MM, I] extends DepFn1[MM] with Serializable
 
-trait LowerPriorityUpdateFn {
+private[pipeline] trait LowerPriorityUpdateFn {
 
   type Aux[MM, I, Out0] = KeepRest[MM, I] { type Out = Out0 }
 
@@ -35,7 +35,7 @@ trait LowerPriorityUpdateFn {
     }
 }
 
-object KeepRest extends LowerPriorityUpdateFn {
+private[pipeline] object KeepRest extends LowerPriorityUpdateFn {
 
   implicit def nil[I] = new KeepRest[HNil, I] {
     override type Out = HNil
@@ -68,9 +68,9 @@ object KeepRest extends LowerPriorityUpdateFn {
     }
 }
 
-trait KeepHead[MM] extends DepFn1[MM] with Serializable
+private[pipeline] trait KeepHead[MM] extends DepFn1[MM] with Serializable
 
-object KeepHead {
+private[pipeline] object KeepHead {
 
   type Aux[MM, Out0] = KeepHead[MM] { type Out = Out0 }
 

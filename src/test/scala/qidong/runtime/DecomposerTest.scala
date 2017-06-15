@@ -1,12 +1,9 @@
-package qidong.pipeline.runtime
+package qidong.runtime
 
 import org.scalatest.FunSuite
 import scalaz.concurrent.Task
-import shapeless.{ ::, HNil }
-import scalaz.Need
 import scalaz._
 import Scalaz._
-import scalaz.Tree.Node
 
 class DecomposerTest extends FunSuite {
   import qidong.pipeline.ops._
@@ -50,6 +47,12 @@ class DecomposerTest extends FunSuite {
     val \/-(resumed) = ret.resume().unsafePerformSync
     assert(underTest.drawTree == ret.trace.map(_.name).drawTree)
     assert(underTest.drawTree == resumed.trace.map(_.name).drawTree)
+  }
+
+  test("failed in Ammonite but thanksfully success here") {
+    val ms = (m0 =>: (m1 =>: m2).keep.name("g1")).keep.name("g2").mapFlatTuple((x: (Int, Int, Int)) => x)
+    val \/-(ret) = ms.run[Task](0).unsafePerformSync
+    assert(ret.data == (0,1,3))
   }
 
 }

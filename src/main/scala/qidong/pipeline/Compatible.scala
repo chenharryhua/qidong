@@ -18,8 +18,8 @@ package qidong.pipeline
 import shapeless.{HList, HNil, ::}
 import shapeless.ops.hlist.Last
 
-sealed trait IoOf[MM] { type I; type O }
-object IoOf {
+private[pipeline] sealed trait IoOf[MM] { type I; type O }
+private[pipeline] object IoOf {
   type Aux[MM, I0, O0] = IoOf[MM] { type I = I0; type O = O0 }
 
   implicit def mIO[F[_], I0, O0]: Aux[M[F, I0, O0], I0, O0] =
@@ -53,8 +53,8 @@ object IoOf {
     }
 }
 
-trait Compatible[M1, M2] { def apply(m1: M1, m2: M2): Boolean }
-object Compatible {
+private[pipeline] trait Compatible[M1, M2] { def apply(m1: M1, m2: M2): Boolean }
+private[pipeline] object Compatible {
   implicit def proof[M1, I1, O1, M2, I2, O2](
     implicit m1: IoOf.Aux[M1, I1, O1],
     m2: IoOf.Aux[M2, I2, O2],

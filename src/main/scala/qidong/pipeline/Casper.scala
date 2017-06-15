@@ -19,9 +19,9 @@ import shapeless.{ HNil, ::, HList, DepFn1 }
 import shapeless.ops.hlist.Last
 import scalaz.Functor
 
-sealed trait Casper[MM] extends DepFn1[MM] with Serializable
+private[pipeline] sealed trait Casper[MM] extends DepFn1[MM] with Serializable
 
-object Casper {
+private[pipeline] object Casper {
   type Aux[MM, Out0] = Casper[MM] { type Out = Out0 }
 
   implicit def m[F[_], I, O]: Aux[M[F, I, O], M[F, I, O]] =
@@ -43,11 +43,11 @@ object Casper {
     }
 }
 
-sealed trait ListOfCaspers[MM] extends DepFn1[MM] with Serializable {
+private[pipeline] sealed trait ListOfCaspers[MM] extends DepFn1[MM] with Serializable {
   override type Out <: HList
 }
 
-trait Lowerest {
+private[pipeline] trait Lowerest {
   type Aux[MM, Out0] = ListOfCaspers[MM] { type Out = Out0 }
 
   implicit def m[MM](implicit c: Casper[MM]): Aux[MM, c.Out :: HNil] =
@@ -57,15 +57,16 @@ trait Lowerest {
     }
 
 }
-trait LowerPriorityList extends Lowerest {
+
+private[pipeline] trait LowerPriorityList extends Lowerest {
   implicit def nil[MM](implicit c: Casper[MM]): Aux[MM :: HNil, c.Out :: HNil] =
     new ListOfCaspers[MM :: HNil] {
       override type Out = c.Out :: HNil
       override def apply(mm: MM :: HNil) = c(mm.head) :: HNil
     }
-
 }
-object ListOfCaspers extends LowerPriorityList {
+
+private[pipeline] object ListOfCaspers extends LowerPriorityList {
   implicit def mlist[MM, MT <: HList](
     implicit c: Casper[MM],
     ct: ListOfCaspers[MT]): Aux[MM :: MT, c.Out :: ct.Out] =

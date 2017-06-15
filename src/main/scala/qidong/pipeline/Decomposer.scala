@@ -24,7 +24,7 @@ import scalaz.Tree.{ Node, Leaf }
 import shapeless.{ HList, HNil, ::, DepFn2 }
 import scala.util.Try
 
-object eval {
+private[pipeline] object eval {
 
   final case class MSuccess[A](trace: Tree[MTraceNode], data: A) {
     def mergeTrace(other: Tree[MTraceNode]): MSuccess[A] =

@@ -1,4 +1,4 @@
-package qidong.pipeline.runtime
+package qidong.runtime
 
 import org.scalatest.FunSuite
 import scala.util.Try

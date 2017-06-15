@@ -17,11 +17,11 @@
 package qidong.pipeline
 import shapeless.{DepFn2, HList, HNil ,::}
 
-sealed trait Composer[P, S] extends DepFn2[P, S] with Serializable {
+private[pipeline] sealed trait Composer[P, S] extends DepFn2[P, S] with Serializable {
   override type Out <: HList
 }
 
-object Composer {
+private[pipeline] object Composer {
   type Aux[P, S, Out0 <: HList] = Composer[P, S] { type Out = Out0 }
 
   implicit def mnil[MM, S <: HList](

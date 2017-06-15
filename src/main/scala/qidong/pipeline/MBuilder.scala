@@ -18,14 +18,14 @@ package qidong.pipeline
 
 import scalaz.Need
 
-abstract class MBuilder[Fn] extends Serializable {
+private[pipeline] abstract class MBuilder[Fn] extends Serializable {
   type F[_]
   type I
   type O
   def apply(m: Fn): M[F, I, O]
 }
 
-trait LowerestPriority {
+private[pipeline] trait LowerestPriority {
   type Aux[Fn, F0[_], I0, O0] = MBuilder[Fn] {
     type F[E] = F0[E]
     type I = I0
@@ -41,7 +41,7 @@ trait LowerestPriority {
     }
 }
 
-trait LowerPriority extends LowerestPriority {
+private[pipeline] trait LowerPriority extends LowerestPriority {
   implicit def idF0Fn[O0](implicit eval: Evalable[Need, O0]): Aux[() => O0, Need, Any, O0] =
     new MBuilder[() => O0] {
       override type F[A] = Need[A]
@@ -67,7 +67,7 @@ trait LowerPriority extends LowerestPriority {
         M[F, I, O](m)
     }
 }
-object MBuilder extends LowerPriority {
+private[pipeline] object MBuilder extends LowerPriority {
   implicit def unitFn[F0[_], O0](implicit eval: Evalable[F0, O0]): MBuilder.Aux[Unit => F0[O0], F0, Any, O0] =
     new MBuilder[Unit => F0[O0]] {
       override type F[C] = F0[C]

@@ -229,6 +229,20 @@ for grouped functions, the `keep` method copy first function's input to the last
 the first m1's input will be copied to the output of the group.
 internally, Qidong rewrites all the functions in the group.
 
+### mapsndFlatTuple/mapFlatTuple
+when apply `keep` several times, the output will be a nested tuple. `mapsndFlatTuple/mapFlatTuple` is functional equivalent to `map/mapsnd` but taking a plain tuple as parameter instead of nested tuple.
+```scala
+    val m1 = (i: Int) => i
+    val f2 = (i: (Int, (Int, Int))) => i._1 + i._2._1 + i._2._2
+    val ms = (m1 =>: (m1 =>: m1).keep).keep.map(f2)
+```
+is equivalent to:
+```scala
+    val m1 = (i: Int) => i
+    val f2 = (i: Int, j: Int, k: Int) => i + j + k
+    val ms = (m1 =>: (m1 =>: m1).keep).keep.mapFlatTuple(f2.tupled)
+```
+
 ## Resume computation
 evaluation failure is resumable.
 

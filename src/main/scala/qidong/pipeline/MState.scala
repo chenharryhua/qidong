@@ -34,8 +34,12 @@ final case class MFailNode(override val name: String, ex: Throwable, timing: Tim
 
 final case class MSuccNode(override val name: String, timing: Timing)
   extends MTraceNode(name) with MSuccess
-final case class MRecoveredByErrorHandlerNode(override val name: String, ex: Throwable, timing: Timing)
-  extends MTraceNode(name) with MSuccess
+
+final case class MRecoveredByErrorHandlerNode(
+  override val name: String,
+  ex: Throwable,
+  timing: Timing)
+    extends MTraceNode(name) with MSuccess
 
 object MTraceNode {
   implicit def showStatusTree = new scalaz.Show[MTraceNode] {

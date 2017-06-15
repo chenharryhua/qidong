@@ -1,19 +1,20 @@
 package qidong.pipeline
 
-import org.scalatest.FunSuite
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 import scala.util.Try
+
+import org.scalatest.FunSuite
+
+import scalaz.Need
+import scalaz.Scalaz.ToEitherOps
+import shapeless.::
+import shapeless.HNil
 import shapeless.test.illTyped
 import shapeless.test.sameTyped
-import shapeless.{ HNil, ::, HList }
-import scalaz.Need
-import scalaz._
-import Scalaz._
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
 
 class MBuilderTest extends FunSuite {
-  import ops._
-  import fixture._
+  import qidong.pipeline.ops._
 
   test("should be same type") {
     val m1 = ((i: Int) => i.toString).name("m1")

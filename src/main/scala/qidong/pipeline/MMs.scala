@@ -25,7 +25,7 @@ import shapeless.{ ::, HList, HNil }
 import shapeless.ops.hlist.{ Tupler, IsHCons }
 import java.time.LocalDateTime
 
-final case class M[F[_], I, O](fn: I => F[O],
+private [pipeline] final case class M[F[_], I, O](fn: I => F[O],
                                uuid: UUID = UUID.randomUUID(),
                                private val cname: Option[String] = None,
                                private[pipeline] val errorHandler: Option[(I, Throwable) => O] = None,
@@ -38,22 +38,19 @@ final case class M[F[_], I, O](fn: I => F[O],
   final def handleError(h: (I, Throwable) => O) = this.copy(errorHandler = Some(h))
   final def onFinish(h: I => Unit) = this.copy(onFinishHandler = Some(h))
 
-  final def map[B](f: O => B)(implicit F: Functor[F]): M[F, I, B] =
-    {
-      val eh0 = errorHandler.map(h => (i: I, ex: Throwable) => f(h(i, ex)))
-      this.copy(fn = (x: I) => this.fn(x).map(f), errorHandler = eh0)
-    }
-  final def mapfst[C](f: C => I)(implicit F: Functor[F]): M[F, C, O] =
-    {
-      val eh0 = errorHandler.map(h => (i: C, ex: Throwable) => h(f(i), ex))
-      val of0 = onFinishHandler.map(h => (i: C) => h(f(i)))
-      this.copy(fn = (x: C) => this.fn(f(x)), errorHandler = eh0, onFinishHandler = of0)
-    }
-  final def mapsnd[C](f: O => C)(implicit F: Functor[F]): M[F, I, C] =
-    {
-      val eh0 = errorHandler.map(h => (i: I, ex: Throwable) => f(h(i, ex)))
-      this.copy(fn = (x: I) => this.fn(x).map(f), errorHandler = eh0)
-    }
+  final def map[B](f: O => B)(implicit F: Functor[F]): M[F, I, B] = {
+    val eh0 = errorHandler.map(h => (i: I, ex: Throwable) => f(h(i, ex)))
+    this.copy(fn = (x: I) => this.fn(x).map(f), errorHandler = eh0)
+  }
+  final def mapfst[C](f: C => I)(implicit F: Functor[F]): M[F, C, O] = {
+    val eh0 = errorHandler.map(h => (i: C, ex: Throwable) => h(f(i), ex))
+    val of0 = onFinishHandler.map(h => (i: C) => h(f(i)))
+    this.copy(fn = (x: C) => this.fn(f(x)), errorHandler = eh0, onFinishHandler = of0)
+  }
+  final def mapsnd[C](f: O => C)(implicit F: Functor[F]): M[F, I, C] = {
+    val eh0 = errorHandler.map(h => (i: I, ex: Throwable) => f(h(i, ex)))
+    this.copy(fn = (x: I) => this.fn(x).map(f), errorHandler = eh0)
+  }
 
   final def replicateInput[I0](implicit F: Functor[F]): M[F, (I0, I), (I0, O)] = {
     def fn0(i0: I0, i: I) = this.fn(i).map(o => (i0, o))
@@ -62,26 +59,25 @@ final case class M[F[_], I, O](fn: I => F[O],
     this.copy(fn = (fn0 _).tupled, errorHandler = eh0, onFinishHandler = of0)
   }
 
-  final def keep(implicit F: Functor[F]): M[F, I, (I, O)] =
-    {
-      val eh0 = errorHandler.map(h => (i: I, ex: Throwable) => (i, h(i, ex)))
-      this.copy(fn = (i: I) => F.map(this.fn(i))(o => (i, o)), errorHandler = eh0)
-    }
+  final def keep(implicit F: Functor[F]): M[F, I, (I, O)] = {
+    val eh0 = errorHandler.map(h => (i: I, ex: Throwable) => (i, h(i, ex)))
+    this.copy(fn = (i: I) => F.map(this.fn(i))(o => (i, o)), errorHandler = eh0)
+  }
 }
 
 object M {
   implicit def mFunctor[F[_]: Functor, I] = new Functor[M[F, I, ?]] {
-    def map[A, B](fab: M[F, I, A])(f: A => B): M[F, I, B] = fab.map(f)
+    override def map[A, B](fab: M[F, I, A])(f: A => B): M[F, I, B] = fab.map(f)
   }
 
   implicit def mProfuctor[F[_]: Functor] =
     new Profunctor[M[F, ?, ?]] {
-      def mapfst[A, B, C](fab: M[F, A, B])(f: C => A): M[F, C, B] = fab.mapfst(f)
-      def mapsnd[A, B, C](fab: M[F, A, B])(f: B => C): M[F, A, C] = fab.mapsnd(f)
+      override def mapfst[A, B, C](fab: M[F, A, B])(f: C => A): M[F, C, B] = fab.mapfst(f)
+      override def mapsnd[A, B, C](fab: M[F, A, B])(f: B => C): M[F, A, C] = fab.mapsnd(f)
     }
 }
 
-final case class Ms[M1, M2, MT <: HList](ms: M1 :: M2 :: MT,
+private [pipeline] final case class Ms[M1, M2, MT <: HList](ms: M1 :: M2 :: MT,
                                          uuid: UUID = UUID.randomUUID(),
                                          private val cname: Option[String] = None) {
   type MS = M1 :: M2 :: MT
@@ -94,14 +90,32 @@ final case class Ms[M1, M2, MT <: HList](ms: M1 :: M2 :: MT,
   final def map[O, O2, Out0 <: HList, H, T <: HList](f: O => O2)(
     implicit snd: MapSnd.Aux[M2 :: MT, O, O2, Out0],
     hc: IsHCons.Aux[Out0, H, T]) = this.mapsnd(f)
+  final def mapFlatTuple[F[_], I, TO, O, O2, ML <: HList, SOut <: HList, H, T <: HList](f: O => O2)(
+    implicit lastOf: LastOf[MS, F, I, TO],
+    snd: MapSnd.Aux[M2 :: MT, TO, O2, SOut],
+    ft: FlattenTuple.Aux[TO, ML],
+    tupler: Tupler.Aux[ML, O],
+    hc: IsHCons.Aux[SOut, H, T]): Ms[M1, H, T] = this.mapsndFlatTuple(f)
+
   final def mapfst[I0, I](f: I0 => I)(implicit fst: MapFst[M1, I0, I]) =
     this.copy(fst(ms.head, f) :: ms.tail)
+
   final def mapsnd[O, O2, Out0 <: HList, H, T <: HList](f: O => O2)(
     implicit snd: MapSnd.Aux[M2 :: MT, O, O2, Out0],
     hc: IsHCons.Aux[Out0, H, T]): Ms[M1, H, T] = {
     val list = snd(ms.tail, f)
     this.copy(ms.head :: hc.head(list) :: hc.tail(list))
   }
+  final def mapsndFlatTuple[F[_], I, TO, O, O2, ML <: HList, SOut <: HList, H, T <: HList](f: O => O2)(
+    implicit lastOf: LastOf[MS, F, I, TO],
+    snd: MapSnd.Aux[M2 :: MT, TO, O2, SOut],
+    ft: FlattenTuple.Aux[TO, ML],
+    tupler: Tupler.Aux[ML, O],
+    hc: IsHCons.Aux[SOut, H, T]): Ms[M1, H, T] = {
+    val list = snd(ms.tail, (o: TO) => f(tupler(ft(o))))
+    this.copy(ms.head :: hc.head(list) :: hc.tail(list))
+  }
+
   final def keep[F[_], I, O, Out3 <: HList](
     implicit headOf: HeadOf[MS, F, I, O],
     update: KeepHead[M1],

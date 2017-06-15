@@ -19,23 +19,25 @@ import scalaz.Tree
 import scalaz.Tree.{ Node, Leaf }
 import shapeless.{ HList, HNil, :: }
 
-sealed trait CallGraph[MM] extends Serializable {
+private[pipeline] sealed trait CallGraph[MM] extends Serializable {
   def apply(mm: MM, parent: Tree[String]): Tree[String]
 }
 
-object CallGraph {
+private[pipeline] object CallGraph {
   implicit def decodem[F[_], I, O] = new CallGraph[M[F, I, O]] {
     override def apply(m: M[F, I, O], parent: Tree[String]): Tree[String] =
       Node(parent.rootLabel, parent.subForest :+ Leaf(m.name))
   }
-  implicit def decodems[M1, M2, MT <: HList](implicit dm: CallGraph[M1 :: M2 :: MT]) = new CallGraph[Ms[M1, M2, MT]] {
-    override def apply(ms: Ms[M1, M2, MT], parent: Tree[String]) =
-      Node(parent.rootLabel, parent.subForest :+ dm(ms.ms, Node(ms.name, Stream())))
-  }
+  implicit def decodems[M1, M2, MT <: HList](implicit dm: CallGraph[M1 :: M2 :: MT]) =
+    new CallGraph[Ms[M1, M2, MT]] {
+      override def apply(ms: Ms[M1, M2, MT], parent: Tree[String]) =
+        Node(parent.rootLabel, parent.subForest :+ dm(ms.ms, Node(ms.name, Stream())))
+    }
 
   implicit def nil[MM](implicit dm: CallGraph[MM]) =
     new CallGraph[MM :: HNil] {
-      override def apply(m: MM :: HNil, parent: Tree[String]): Tree[String] = dm(m.head, parent)
+      override def apply(m: MM :: HNil, parent: Tree[String]): Tree[String] =
+        dm(m.head, parent)
     }
 
   implicit def coinductively[MM, S <: HList](

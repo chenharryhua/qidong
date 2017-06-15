@@ -1,5 +1,6 @@
-package qidong.pipeline
-import scalaz.Scalaz.ToEitherOps
+package qidong.statics
+import scalaz._
+import Scalaz._
 
 object fixture {
   import qidong.pipeline.ops._

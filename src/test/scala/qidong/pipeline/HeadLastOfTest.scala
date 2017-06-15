@@ -5,7 +5,7 @@ import shapeless.{ HList, ::, HNil }
 import shapeless.test.sameTyped
 
 class HeadLastOfTest extends FunSuite {
-  import ops._
+  import qidong.pipeline.ops._
   import fixture._
 
   test("headof should return the first mission of the expression") {
