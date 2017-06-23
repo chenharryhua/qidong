@@ -15,12 +15,20 @@
  */
 
 package qidong.pipeline
-import shapeless.{HList, HNil, ::}
+import shapeless.{ HList, HNil, :: }
 import shapeless.ops.hlist.Last
 
-private[pipeline] sealed trait IoOf[MM] { type I; type O }
-private[pipeline] object IoOf {
-  type Aux[MM, I0, O0] = IoOf[MM] { type I = I0; type O = O0 }
+@annotation.implicitNotFound(msg = "No available for ${MM}")
+private[pipeline] sealed trait IoOf[MM] {
+  type I
+  type O
+}
+
+private[pipeline] trait LowPriorityIoOf {
+  type Aux[MM, I0, O0] = IoOf[MM] {
+    type I = I0
+    type O = O0
+  }
 
   implicit def mIO[F[_], I0, O0]: Aux[M[F, I0, O0], I0, O0] =
     new IoOf[M[F, I0, O0]] {
@@ -38,21 +46,29 @@ private[pipeline] object IoOf {
       override type I = I0
       override type O = O0
     }
-  implicit def nil[MM](implicit ev: IoOf[MM]) = new IoOf[MM :: HNil] {
-    override type I = ev.I
-    override type O = ev.O
-  }
-
   implicit def coinductively[MT <: HList, M1, I1, O1, M2, I2, O2](
     implicit h: Aux[M1, I1, O1],
     e: Last.Aux[MT, M2],
-    r: Aux[M2, I2, O2]) =
+    r: Aux[M2, I2, O2]): Aux[M1 :: MT, I1, O2] =
     new IoOf[M1 :: MT] {
       override type I = I1
       override type O = O2
     }
 }
+object IoOf extends LowPriorityIoOf {
+  implicit def nil[MM, I0, O0](implicit ev: IoOf.Aux[MM, I0, O0]): Aux[MM :: HNil, I0, O0] =
+    new IoOf[MM :: HNil] {
+      override type I = I0
+      override type O = O0
+    }
+  implicit def mIO2[F[_], G[_], I0, O0]: Aux[M[Lambda[X => F[G[X]]], I0, O0], I0, O0] =
+    new IoOf[M[Lambda[X => F[G[X]]], I0, O0]] {
+      override type I = I0
+      override type O = O0
+    }
+}
 
+@annotation.implicitNotFound(msg = "No available for ${M1} ${M2}")
 private[pipeline] trait Compatible[M1, M2] { def apply(m1: M1, m2: M2): Boolean }
 private[pipeline] object Compatible {
   implicit def proof[M1, I1, O1, M2, I2, O2](

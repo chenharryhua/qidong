@@ -28,7 +28,7 @@ private[pipeline] trait LowerPriorityUpdateFn {
 
   implicit def coinductively[MM, MT <: HList, I, Out0 <: HList](
     implicit keepH: KeepRest[MM, I],
-    keepT: KeepRest.Aux[MT, I, Out0]) =
+    keepT: KeepRest.Aux[MT, I, Out0]): Aux[MM :: MT, I, keepH.Out :: Out0] =
     new KeepRest[MM :: MT, I] {
       override type Out = keepH.Out :: Out0
       override def apply(mm: MM :: MT): Out = keepH(mm.head) :: keepT(mm.tail)
@@ -37,20 +37,22 @@ private[pipeline] trait LowerPriorityUpdateFn {
 
 private[pipeline] object KeepRest extends LowerPriorityUpdateFn {
 
-  implicit def nil[I] = new KeepRest[HNil, I] {
-    override type Out = HNil
-    override def apply(m: HNil): Out = HNil
-  }
+  implicit def nil[I]: Aux[HNil, I, HNil] =
+    new KeepRest[HNil, I] {
+      override type Out = HNil
+      override def apply(m: HNil): Out = HNil
+    }
 
   implicit def m[F[_], I, O, I0](
-    implicit F: Functor[F]) =
+    implicit F: Functor[F]): Aux[M[F, I, O] :: HNil, I0, M[F, (I0, I), (I0, O)] :: HNil] =
     new KeepRest[M[F, I, O] :: HNil, I0] {
       override type Out = M[F, (I0, I), (I0, O)] :: HNil
       override def apply(mm: M[F, I, O] :: HNil): Out =
         mm.head.replicateInput[I0] :: HNil
     }
 
-  implicit def singleM[F[_], I, O, I0](implicit F: Functor[F]) =
+  implicit def singleM[F[_], I, O, I0](
+    implicit F: Functor[F]): Aux[M[F, I, O], I0, M[F, (I0, I), (I0, O)]] =
     new KeepRest[M[F, I, O], I0] {
       override type Out = M[F, (I0, I), (I0, O)]
       override def apply(mm: M[F, I, O]): Out =
@@ -60,7 +62,7 @@ private[pipeline] object KeepRest extends LowerPriorityUpdateFn {
   implicit def ms[M1, M2, MT <: HList, I, Out3 <: HList](
     implicit dup1: KeepRest[M1, I],
     dup2: KeepRest[M2, I],
-    dup3: KeepRest.Aux[MT, I, Out3]) =
+    dup3: KeepRest.Aux[MT, I, Out3]): Aux[Ms[M1, M2, MT], I, Ms[dup1.Out, dup2.Out, Out3]] =
     new KeepRest[Ms[M1, M2, MT], I] {
       override type Out = Ms[dup1.Out, dup2.Out, Out3]
       override def apply(mm: Ms[M1, M2, MT]): Out =
@@ -75,7 +77,7 @@ private[pipeline] object KeepHead {
   type Aux[MM, Out0] = KeepHead[MM] { type Out = Out0 }
 
   implicit def m[F[_], I, O](
-    implicit F: Functor[F]) =
+    implicit F: Functor[F]): Aux[M[F, I, O], M[F, I, (I, O)]] =
     new KeepHead[M[F, I, O]] {
       override type Out = M[F, I, (I, O)]
       override def apply(mm: M[F, I, O]) = mm.keep
@@ -85,7 +87,7 @@ private[pipeline] object KeepHead {
     implicit headOf: HeadOf[M1 :: M2 :: MT, F, I, O],
     update: KeepHead[M1],
     dup2: KeepRest[M2, I],
-    dup3: KeepRest.Aux[MT, I, Out0]) =
+    dup3: KeepRest.Aux[MT, I, Out0]): Aux[Ms[M1, M2, MT], Ms[update.Out, dup2.Out, Out0]] =
     new KeepHead[Ms[M1, M2, MT]] {
       override type Out = Ms[update.Out, dup2.Out, Out0]
       override def apply(mm: Ms[M1, M2, MT]) =

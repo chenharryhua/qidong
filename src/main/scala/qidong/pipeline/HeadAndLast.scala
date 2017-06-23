@@ -24,12 +24,12 @@ private[pipeline] trait HeadOf[MM, F[_], I, O] {
 }
 
 private[pipeline] object HeadOf {
-  implicit def m[MT <: HList, F[_], I, O] =
+  implicit def m[MT <: HList, F[_], I, O]: HeadOf[M[F, I, O] :: MT, F, I, O] =
     new HeadOf[M[F, I, O] :: MT, F, I, O] {
       override def apply(mm: M[F, I, O] :: MT): M[F, I, O] = mm.head
     }
   implicit def ms[M1, M2, MT <: HList, ML <: HList, F[_], I, O](
-    implicit headOf: HeadOf[M1 :: M2 :: MT, F, I, O]) =
+    implicit headOf: HeadOf[M1 :: M2 :: MT, F, I, O]): HeadOf[Ms[M1, M2, MT] :: ML, F, I, O] =
     new HeadOf[Ms[M1, M2, MT] :: ML, F, I, O] {
       override def apply(mm: Ms[M1, M2, MT] :: ML): M[F, I, O] =
         headOf(mm.head.ms)
@@ -41,30 +41,30 @@ private[pipeline] trait LastOf[MM, F[_], I, O] {
 }
 
 private[pipeline] object LastOf {
-  implicit def m[F[_], I, O] =
+  implicit def m[F[_], I, O]: LastOf[M[F, I, O] :: HNil, F, I, O] =
     new LastOf[M[F, I, O] :: HNil, F, I, O] {
       override def apply(mm: M[F, I, O] :: HNil): M[F, I, O] = mm.head
     }
-  implicit def singleM[F[_], I, O] =
+  implicit def singleM[F[_], I, O]: LastOf[M[F, I, O], F, I, O] =
     new LastOf[M[F, I, O], F, I, O] {
       override def apply(mm: M[F, I, O]): M[F, I, O] = mm
     }
 
   implicit def ms[M1, M2, MT <: HList, F[_], I, O](
-    implicit lastOf: LastOf[M1 :: M2 :: MT, F, I, O]) =
+    implicit lastOf: LastOf[M1 :: M2 :: MT, F, I, O]): LastOf[Ms[M1, M2, MT] :: HNil, F, I, O] =
     new LastOf[Ms[M1, M2, MT] :: HNil, F, I, O] {
       override def apply(mm: Ms[M1, M2, MT] :: HNil): M[F, I, O] =
         lastOf(mm.head.ms)
     }
   implicit def singleMs[M1, M2, MT <: HList, F[_], I, O](
-    implicit lastOf: LastOf[M1 :: M2 :: MT, F, I, O]) =
+    implicit lastOf: LastOf[M1 :: M2 :: MT, F, I, O]): LastOf[Ms[M1, M2, MT], F, I, O] =
     new LastOf[Ms[M1, M2, MT], F, I, O] {
       override def apply(mm: Ms[M1, M2, MT]): M[F, I, O] = lastOf(mm.ms)
     }
 
   implicit def coinductively[MM, MT <: HList, Out0, F[_], I, O](
     implicit last: Last.Aux[MT, Out0],
-    lastOf: LastOf[Out0, F, I, O]) =
+    lastOf: LastOf[Out0, F, I, O]): LastOf[MM :: MT, F, I, O] =
     new LastOf[MM :: MT, F, I, O] {
       override def apply(mm: MM :: MT): M[F, I, O] =
         lastOf(last(mm.tail))

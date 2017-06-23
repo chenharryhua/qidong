@@ -54,13 +54,13 @@ private[pipeline] object eval {
   trait LowerPriorityDecomposer {
     type Aux[MM, E[_], I, O] = Decomposer[MM, E, I] { type Out = Compu[E, O] }
 
-    implicit def eval_m[F[_], I2, O2, E[_], O1](
+    implicit def eval_m[F0[_], I2, O2, E[_], O1](
       implicit env: EvalCap[E],
-      trans: Evalable[F, O2],
-      ev: O1 <:< I2): Aux[M[F, I2, O2], E, O1, O2] =
-      new Decomposer[M[F, I2, O2], E, O1] {
+      trans: Evalable.Aux[F0[O2], F0, O2],
+      ev: O1 <:< I2): Aux[M[F0, I2, O2], E, O1, O2] =
+      new Decomposer[M[F0, I2, O2], E, O1] {
         override type Out = Compu[E, O2]
-        override def apply(m: M[F, I2, O2], pre: Compu[E, O1]): Compu[E, O2] = {
+        override def apply(m: M[F0, I2, O2], pre: Compu[E, O1]): Out = {
           env.bind(pre) {
             case -\/(e) =>
               val fail = e.notRun(() => this.apply(m, e.resume()), m.name)

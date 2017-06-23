@@ -24,27 +24,27 @@ private[pipeline] trait MapFst[MM, I0, I] extends DepFn2[MM, I0 => I] with Seria
 private[pipeline] object MapFst {
   type Aux[MM, I0, I, Out0] = MapFst[MM, I0, I] { type Out = Out0 }
 
-  implicit def m[MT <: HList, F[_]: Functor, I, O, I0] =
+  implicit def m[MT <: HList, F[_]: Functor, I, O, I0]: Aux[M[F, I, O] :: MT, I0, I, M[F, I0, O] :: MT] =
     new MapFst[M[F, I, O] :: MT, I0, I] {
       override type Out = M[F, I0, O] :: MT
       override def apply(m: M[F, I, O] :: MT, f: I0 => I): Out =
         m.head.mapfst(f) :: m.tail
     }
-  implicit def singleM[F[_]: Functor, I, O, I0] =
+  implicit def singleM[F[_]: Functor, I, O, I0]: Aux[M[F, I, O], I0, I, M[F, I0, O]] =
     new MapFst[M[F, I, O], I0, I] {
       override type Out = M[F, I0, O]
       override def apply(m: M[F, I, O], f: I0 => I): Out = m.mapfst(f)
     }
 
   implicit def ms[M1, M2, MT <: HList, ML <: HList, I0, I](
-    implicit mapFst: MapFst[M1, I0, I]) =
+    implicit mapFst: MapFst[M1, I0, I]): Aux[Ms[M1, M2, MT] :: ML, I0, I, Ms[mapFst.Out, M2, MT] :: ML] =
     new MapFst[Ms[M1, M2, MT] :: ML, I0, I] {
       override type Out = Ms[mapFst.Out, M2, MT] :: ML
       override def apply(mm: Ms[M1, M2, MT] :: ML, f: I0 => I): Out =
         mm.head.mapfst(f) :: mm.tail
     }
   implicit def singleMs[M1, M2, MT <: HList, I0, I](
-    implicit mapFst: MapFst[M1, I0, I]) =
+    implicit mapFst: MapFst[M1, I0, I]): Aux[Ms[M1, M2, MT], I0, I, Ms[mapFst.Out, M2, MT]] =
     new MapFst[Ms[M1, M2, MT], I0, I] {
       override type Out = Ms[mapFst.Out, M2, MT]
       override def apply(mm: Ms[M1, M2, MT], f: I0 => I): Out = mm.mapfst(f)
@@ -58,7 +58,7 @@ private[pipeline] trait MapSnd[MM <: HList, O, O2] extends DepFn2[MM, O => O2] w
 private[pipeline] object MapSnd {
   type Aux[MM <: HList, O, O2, Out0 <: HList] = MapSnd[MM, O, O2] { type Out = Out0 }
 
-  implicit def m[F[_]: Functor, I, O, O2] =
+  implicit def m[F[_]: Functor, I, O, O2]: Aux[M[F, I, O] :: HNil, O, O2, M[F, I, O2] :: HNil] =
     new MapSnd[M[F, I, O] :: HNil, O, O2] {
       override type Out = M[F, I, O2] :: HNil
       override def apply(mm: M[F, I, O] :: HNil, f: O => O2): Out =
@@ -67,7 +67,7 @@ private[pipeline] object MapSnd {
 
   implicit def ms[M1, M2, MT <: HList, O, O2, H, T <: HList, Out0 <: HList](
     implicit mapSnd: MapSnd.Aux[M2 :: MT, O, O2, Out0],
-    hc: IsHCons.Aux[Out0, H, T]) =
+    hc: IsHCons.Aux[Out0, H, T]): Aux[Ms[M1, M2, MT] :: HNil, O, O2, Ms[M1, H, T] :: HNil] =
     new MapSnd[Ms[M1, M2, MT] :: HNil, O, O2] {
       override type Out = Ms[M1, H, T] :: HNil
       override def apply(mm: Ms[M1, M2, MT] :: HNil, f: O => O2) =
@@ -75,7 +75,7 @@ private[pipeline] object MapSnd {
     }
 
   implicit def coinductively[MM, MT <: HList, O, O2, Out0 <: HList](
-    implicit mapSnd: MapSnd.Aux[MT, O, O2, Out0]) =
+    implicit mapSnd: MapSnd.Aux[MT, O, O2, Out0]): Aux[MM :: MT, O, O2, MM :: Out0] =
     new MapSnd[MM :: MT, O, O2] {
       override type Out = MM :: Out0
       override def apply(mm: MM :: MT, f: O => O2): Out =

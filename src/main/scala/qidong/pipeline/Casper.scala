@@ -36,18 +36,20 @@ private[pipeline] object Casper {
       override def apply(ms: Ms[M1, M2, MT]): Out = ms
     }
 
-  implicit def fn[Fn, F[_], I, O](implicit build: MBuilder.Aux[Fn, F, I, O]): Aux[Fn, M[F, I, O]] =
+  implicit def fn[Fn, F[_], I, O](
+    implicit build: MBuilder.Aux[Fn, F, I, O]): Aux[Fn, M[F, I, O]] =
     new Casper[Fn] {
       override type Out = M[F, I, O]
       override def apply(m: Fn): Out = build(m)
     }
 }
 
-private[pipeline] sealed trait ListOfCaspers[MM] extends DepFn1[MM] with Serializable {
+private[pipeline] sealed trait ListOfCaspers[MM]
+    extends DepFn1[MM] with Serializable {
   override type Out <: HList
 }
 
-private[pipeline] trait Lowerest {
+private[pipeline] trait LowestPriorityList {
   type Aux[MM, Out0] = ListOfCaspers[MM] { type Out = Out0 }
 
   implicit def m[MM](implicit c: Casper[MM]): Aux[MM, c.Out :: HNil] =
@@ -58,7 +60,7 @@ private[pipeline] trait Lowerest {
 
 }
 
-private[pipeline] trait LowerPriorityList extends Lowerest {
+private[pipeline] trait LowerPriorityList extends LowestPriorityList {
   implicit def nil[MM](implicit c: Casper[MM]): Aux[MM :: HNil, c.Out :: HNil] =
     new ListOfCaspers[MM :: HNil] {
       override type Out = c.Out :: HNil

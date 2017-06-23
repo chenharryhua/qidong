@@ -33,7 +33,7 @@ object ops {
       composer: Composer[M1Out, M2Out]): composer.Out =
       composer(lc1(m1), lc2(m2))
 
-    final def name(str: String)(implicit naming: Naming[M2]) = naming(m2, str)
+    final def name(str: String)(implicit naming: Naming[M2]): naming.Out = naming(m2, str)
 
     final def mapfst[I0, I](f: I0 => I)(
       implicit lc: ListOfCaspers.Aux[M2, M2Out],

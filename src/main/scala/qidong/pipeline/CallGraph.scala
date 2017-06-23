@@ -24,17 +24,19 @@ private[pipeline] sealed trait CallGraph[MM] extends Serializable {
 }
 
 private[pipeline] object CallGraph {
-  implicit def decodem[F[_], I, O] = new CallGraph[M[F, I, O]] {
-    override def apply(m: M[F, I, O], parent: Tree[String]): Tree[String] =
-      Node(parent.rootLabel, parent.subForest :+ Leaf(m.name))
-  }
-  implicit def decodems[M1, M2, MT <: HList](implicit dm: CallGraph[M1 :: M2 :: MT]) =
+  implicit def decodem[F[_], I, O]: CallGraph[M[F, I, O]] =
+    new CallGraph[M[F, I, O]] {
+      override def apply(m: M[F, I, O], parent: Tree[String]): Tree[String] =
+        Node(parent.rootLabel, parent.subForest :+ Leaf(m.name))
+    }
+  implicit def decodems[M1, M2, MT <: HList](
+    implicit dm: CallGraph[M1 :: M2 :: MT]): CallGraph[Ms[M1, M2, MT]] =
     new CallGraph[Ms[M1, M2, MT]] {
       override def apply(ms: Ms[M1, M2, MT], parent: Tree[String]) =
         Node(parent.rootLabel, parent.subForest :+ dm(ms.ms, Node(ms.name, Stream())))
     }
 
-  implicit def nil[MM](implicit dm: CallGraph[MM]) =
+  implicit def nil[MM](implicit dm: CallGraph[MM]): CallGraph[MM :: HNil] =
     new CallGraph[MM :: HNil] {
       override def apply(m: MM :: HNil, parent: Tree[String]): Tree[String] =
         dm(m.head, parent)
@@ -42,7 +44,7 @@ private[pipeline] object CallGraph {
 
   implicit def coinductively[MM, S <: HList](
     implicit pt: CallGraph[S],
-    dm: CallGraph[MM]) =
+    dm: CallGraph[MM]): CallGraph[MM :: S] =
     new CallGraph[MM :: S] {
       override def apply(prefix: MM :: S, parent: Tree[String]): Tree[String] =
         pt(prefix.tail, dm(prefix.head, parent))
